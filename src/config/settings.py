@@ -58,8 +58,8 @@ INSTALLED_APPS = [
     "django.contrib.sites",  # Siteフレームワークの追加
     # 外部パッケージ
     # プロジェクト固有 Apps (新しい構成)
-    # "core",       # 共通機能
-    # "account",    # ユーザー認証・プロフィール
+    "core",  # 共通機能
+    "account",  # ユーザー認証・プロフィール
     # "product",    # 作品・違反報告
     # "article",    # 記事・チュートリアル
     # "message",    # プライベートメッセージ
