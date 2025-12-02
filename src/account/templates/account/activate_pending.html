@@ -1,0 +1,52 @@
+{% extends "core/auth/base.html" %}
+{% load static %}
+
+{% block title %}メール送信完了 - YourApp{% endblock %}
+
+{% block extra_head_css %}
+<style>
+    /* 中央配置のためのCSS */
+    .login-container {
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+        align-items: center;
+        min-height: 100vh;
+        padding: 1rem;
+    }
+</style>
+{% endblock %}
+
+{% block extra_js_scripts %}{% endblock %}
+
+
+{% block content %}
+
+{# アクティベートメール送信完了ページ専用のレイアウトコンテナ #}
+<div class="login-container">
+  
+  <div class="text-center mb-6">
+    <h1 class="text-4xl font-bold text-primary">Loclil</h1>
+    <p class="text-lg text-base-content/70 mt-2">アカウント有効化メールを送信しました</p>
+  </div>
+
+  <div class="card w-full max-w-sm bg-base-100 shadow-2xl p-8 text-center">
+    
+    <div class="text-success mx-auto mb-4">
+      <svg xmlns="http://www.w3.org/2000/svg" class="h-10 w-10" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+        <path stroke-linecap="round" stroke-linejoin="round" d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8m-2 4v4a2 2 0 01-2 2H7a2 2 0 01-2-2v-4"/>
+      </svg>
+    </div>
+
+    <h2 class="text-xl font-semibold mb-3">メールをご確認ください</h2>
+    
+    <p class="text-sm text-base-content/70 mb-5">
+      アカウントを有効化するためのリンクを、ご登録のメールアドレスに送信しました。<br>
+      メールが届かない場合は、迷惑メールフォルダをご確認ください。
+    </p>
+
+    <a href="{% url 'account:login' %}" class="btn btn-primary btn-sm mt-2">ログイン画面へ戻る</a>
+  </div>
+</div>
+
+{% endblock %}

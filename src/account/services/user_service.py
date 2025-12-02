@@ -5,6 +5,7 @@ from django.conf import settings
 from django.contrib.auth import get_user_model
 from django.contrib.sites.models import Site
 from django.core.mail import send_mail
+from django.db import IntegrityError as DjangoIntegrityError
 from django.db import transaction
 from django.urls import reverse
 from django.utils import timezone
@@ -19,7 +20,11 @@ from account.models.t_user_token import TokenTypes
 from account.repositories.m_user_profile_repository import M_UserProfileRepository
 from account.repositories.m_user_repository import M_UserRepository
 from account.repositories.t_user_token_repository import T_UserTokenRepository
-from core.consts import APP_NAME
+
+# --- 共通モジュール ---
+from core.consts import APP_NAME, LOG_METHOD
+from core.exceptions import DuplicationError, ExternalServiceError, IntegrityError
+from core.utils.log_helpers import log_output_by_msg_id
 
 User = get_user_model()
 
@@ -82,42 +87,70 @@ class UserService:
         Returns:
             User: 作成されたユーザーインスタンス
         """
-        # 1. M_Userの作成 (User.objects.create_userはリポジトリのメソッド経由で呼ぶ)
-        m_user_instance = self.user_repo.create_user_with_password(
-            email=email, password=password
-        )
-
-        # M_UserProfileがシグナルで作成された後、display_nameを更新
-        # (シグナルが動かないことは起こり得ないので冗長となる存在しないかのチェックは行わない)
-        if display_name:
-            # M_UserProfileのリポジトリを使用して更新
-            # M_UserとM_UserProfileは1:1のため、M_UserインスタンスからM_UserProfileを取得し更新
-            m_user_profile_instance = self.profile_repo.get_by_user_id(
-                m_user_instance.pk
+        try:
+            # 1. M_Userの作成 (User.objects.create_userはリポジトリのメソッド経由で呼ぶ)
+            m_user_instance = self.user_repo.create_user_with_password(
+                email=email, password=password
             )
-            if m_user_profile_instance:
-                # profile_repoのupdateメソッドを使用
-                self.profile_repo.update(
-                    m_user_profile_instance, display_name=display_name
+
+            # M_UserProfileがシグナルで作成された後、display_nameを更新
+            # (シグナルが動かないことは起こり得ないので冗長となる存在しないかのチェックは行わない)
+            if display_name:
+                # M_UserProfileのリポジトリを使用して更新
+                # M_UserとM_UserProfileは1:1のため、M_UserインスタンスからM_UserProfileを取得し更新
+                m_user_profile_instance = self.profile_repo.get_by_user_id(
+                    m_user_instance.pk
                 )
+                if m_user_profile_instance:
+                    # profile_repoのupdateメソッドを使用
+                    self.profile_repo.update(
+                        m_user_profile_instance, display_name=display_name
+                    )
 
-        # 2. T_UserToken(アクティベーション)レコードの作成
-        raw_token_value = os.urandom(32).hex()
-        token_hash = hashlib.sha256(raw_token_value.encode()).hexdigest()
-        expiry_seconds = settings.TOKEN_EXPIRY_SECONDS.get("activation")
-        expires_at = timezone.now() + timezone.timedelta(hours=expiry_seconds)
+            # 2. T_UserToken(アクティベーション)レコードの作成
+            raw_token_value = os.urandom(32).hex()
+            token_hash = hashlib.sha256(raw_token_value.encode()).hexdigest()
+            expiry_seconds = settings.TOKEN_EXPIRY_SECONDS.get("activation")
+            expired_at = timezone.now() + timezone.timedelta(hours=expiry_seconds)
+            # T_UserTokenRepositoryのcreateメソッドを使用
+            self.token_repo.create(
+                m_user=m_user_instance,
+                token_hash=token_hash,
+                token_type=TokenTypes.ACTIVATION,
+                expired_at=expired_at,
+            )
 
-        # T_UserTokenRepositoryのcreateメソッドを使用
-        self.token_repo.create(
-            m_user=m_user_instance,
-            token_hash=token_hash,
-            type=TokenTypes.ACTIVATION,
-            expires_at=expires_at,
-        )
+            # 3. アクティベーションメールの送信
+            self.send_activation_email(m_user_instance, raw_token_value)
+            return m_user_instance
 
-        # 3. アクティベーションメールの送信
-        self.send_activation_email(m_user_instance, raw_token_value)
-        return m_user_instance
+        except DjangoIntegrityError as e:
+            # 既にフォームバリデーションでメール重複をチェックしているはずだが、
+            # レースコンディションや他のUNIQUE制約違反が発生した場合の最終防衛線。
+            # エラーメッセージやコードに基づき、DuplicationErrorかIntegrityErrorに変換
+            if "UNIQUE constraint" in str(e) or "duplicate key" in str(e):
+                # ユーザーに見せるエラーメッセージを DuplicationError のデフォルトに任せる
+                raise DuplicationError(details={"field": "email"})
+
+            # その他のDB整合性エラー
+            raise IntegrityError(details={"db_error": str(e)})
+
+        except ExternalServiceError:
+            # send_activation_email内部でExternalServiceErrorが投げられた場合
+            raise  # そのまま再送出
+
+        except Exception as e:
+            # 予期せぬエラーは、コアのApplicationErrorを投げるか、ログに残してServiceInternalErrorを定義して投げる
+            # 今回は、定義済みの IntegrityError を使用しつつログを取るのが安全
+            log_output_by_msg_id(
+                log_id="MSGE001",
+                params=[f"Unexpected error during registration for {email}: {e}"],
+                logger_name=LOG_METHOD.APPLICATION.value,
+            )
+            raise IntegrityError(
+                message="登録処理中に予期せぬエラーが発生しました。",
+                details={"internal_message": str(e)},
+            )
 
     # ------------------------------------------------------------------
     # ユーザアクティベーション処理

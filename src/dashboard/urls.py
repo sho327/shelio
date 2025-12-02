@@ -27,11 +27,11 @@
 
 from django.urls import path
 
-from home.views.home import DashboardView
+from dashboard.views.dashboard import DashboardView
 
 urlpatterns = [
     # ログイン画面を表示し、POSTで送信されたログイン情報を処理する
-    path("", DashboardView.as_view(), name="home"),
+    path("", DashboardView.as_view(), name="dashboard"),
     # ログアウト用のURLもついでに設定しておくと便利です
     # path('logout/', LogoutView.as_view(next_page='/'), name='logout'),
 ]

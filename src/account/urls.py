@@ -27,13 +27,17 @@
 
 from django.urls import path
 
+from account.views.activate_pending import ActivatePendingView
 from account.views.login import CustomLoginView
-from account.views.signup import SignupView
+from account.views.signup import CustomSignupView
+
+app_name = "account"  # app_nameを設定すると reverse_lazy("account:registration_pending") が動作します
 
 urlpatterns = [
     # ログイン画面を表示し、POSTで送信されたログイン情報を処理する
     path("login/", CustomLoginView.as_view(), name="login"),
-    path("signup/", SignupView.as_view(), name="signup"),
+    path("signup/", CustomSignupView.as_view(), name="signup"),
+    path("activate_pending/", ActivatePendingView.as_view(), name="activate_pending"),
     # ログアウト用のURLもついでに設定しておくと便利です
     # path('logout/', LogoutView.as_view(next_page='/'), name='logout'),
 ]

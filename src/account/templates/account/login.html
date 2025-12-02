@@ -50,12 +50,12 @@
   <div class="card w-full max-w-sm bg-base-100 shadow-2xl p-6">
     
     {# Django標準のフォーム送信を利用 #}
-    <form class="card-body p-0" method="post" action="{% url 'login' %}" x-ref="djangoForm">
+    <form class="card-body p-0" method="post" action="{% url 'account:login' %}" x-ref="djangoForm">
       {% csrf_token %}
       
       {# フォームの全体エラー表示 #}
       {% if form.non_field_errors %}
-          {# ⭐ 修正箇所: alert alert-error をカスタム Tailwind スタイルに置き換え ⭐ #}
+          {# alert alert-error をカスタム Tailwind スタイルに置き換え #}
           <div role="alert" 
                class="bg-red-100 text-red-700 border border-red-400 p-3 rounded-md text-sm flex items-start">
               {# 警告アイコン (Tailwind/DaisyUI環境ならアイコンライブラリで置き換えてもOK) #}
@@ -72,64 +72,64 @@
 
       {# 1. Username (Email) フィールド #}
       {% with field=form.username %}
-		<div class="form-control">
-			<label class="label">
-				<span class="label-text">{{ field.label_tag }}</span>
-			</label>
-			<input type="text" 
-					name="{{ field.name }}"
-					id="{{ field.id_for_label }}"
-					placeholder="メールアドレスを入力してください" 
-					class="input input-bordered w-full rounded-md {% if field.errors %}input-error{% endif %}" 
-					x-model="username" 
-					required 
-					value="{{ field.value|default_if_none:'' }}"/>
-			{% if field.errors %}
-				<label class="label pb-0">
-					<span class="label-text-alt text-error">
-						{% for error in field.errors %}{{ error }}{% endfor %}
-					</span>
-				</label>
-			{% endif %}
-		</div>
+        <div class="form-control">
+          <label class="label">
+            <span class="label-text">{{ field.label_tag }}</span>
+          </label>
+          <input type="text" 
+              name="{{ field.name }}"
+              id="{{ field.id_for_label }}"
+              placeholder="メールアドレスを入力してください" 
+              class="input input-bordered w-full rounded-md {% if field.errors %}input-error{% endif %}" 
+              x-model="username" 
+              required 
+              value="{{ field.value|default_if_none:'' }}"/>
+          {% if field.errors %}
+            <label class="label pb-0">
+              <span class="label-text-alt text-error">
+                {% for error in field.errors %}{{ error }}{% endfor %}
+              </span>
+            </label>
+          {% endif %}
+        </div>
       {% endwith %}
 
       {# 2. Password フィールド #}
       {% with field=form.password %}
-		<div class="form-control">
-			<label class="label">
-				<span class="label-text">{{ field.label_tag }}</span>
-			</label>
-			<input type="password" 
-					name="{{ field.name }}"
-					id="{{ field.id_for_label }}"
-					placeholder="パスワード" 
-					class="input input-bordered w-full rounded-md {% if field.errors %}input-error{% endif %}" 
-					x-model="password" 
-					required />
-			
-			{% if field.errors %}
-				<label class="label pb-0">
-					<span class="label-text-alt text-error">
-						{% for error in field.errors %}{{ error }}{% endfor %}
-					</span>
-				</label>
-			{% endif %}
-		</div>
+        <div class="form-control">
+          <label class="label">
+            <span class="label-text">{{ field.label_tag }}</span>
+          </label>
+          <input type="password" 
+              name="{{ field.name }}"
+              id="{{ field.id_for_label }}"
+              placeholder="パスワード" 
+              class="input input-bordered w-full rounded-md {% if field.errors %}input-error{% endif %}" 
+              x-model="password" 
+              required />
+          
+          {% if field.errors %}
+            <label class="label pb-0">
+              <span class="label-text-alt text-error">
+                {% for error in field.errors %}{{ error }}{% endfor %}
+              </span>
+            </label>
+          {% endif %}
+        </div>
       {% endwith %}
 
       {# 3. Remember Me (remember_me) フィールド #}
       {% with field=form.remember_me %}
-		<div class="form-control mt-2">
-			<label class="label cursor-pointer p-0">
-			<span class="label-text">{{ field.label }}</span>
-			<input type="checkbox" 
-					name="{{ field.name }}"
-					class="checkbox checkbox-sm checkbox-primary rounded-md" 
-					x-model="remember_me"
-					{% if field.value %}checked{% endif %} />
-			</label>
-		</div>
+        <div class="form-control mt-2">
+          <label class="label cursor-pointer p-0">
+          <span class="label-text">{{ field.label }}</span>
+          <input type="checkbox" 
+              name="{{ field.name }}"
+              class="checkbox checkbox-sm checkbox-primary rounded-md" 
+              x-model="remember_me"
+              {% if field.value %}checked{% endif %} />
+          </label>
+        </div>
       {% endwith %}
 
       <div class="form-control mt-2">
@@ -156,7 +156,7 @@
   <div class="mt-8 text-center w-full max-w-sm">
     <p class="text-sm text-base-content/70 mb-4">
       アカウントをお持ちでないですか？ 
-      <a href="{% url 'signup' %}" class="link link-primary">新規登録</a>
+      <a href="{% url 'account:signup' %}" class="link link-primary">新規登録</a>
     </p>
   </div>
 

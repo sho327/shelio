@@ -63,11 +63,11 @@ INSTALLED_APPS = [
     # 外部パッケージ
     # プロジェクト固有 Apps (新しい構成)
     "core",  # 共通機能
-    "account",  # ユーザー認証・プロフィール
-    # "product",    # 作品・違反報告
-    # "article",    # 記事・チュートリアル
-    # "message",    # プライベートメッセージ
-    "home",  # ユーザー認証・プロフィール
+    "account",  # アカウント認証・プロフィール機能
+    # "product",  # 作品・違反報告
+    # "article",  # 記事・チュートリアル
+    # "message",  # プライベートメッセージ
+    "dashboard",  # ダッシュボード機能
 ]
 SITE_ID = 1
 MIDDLEWARE = [

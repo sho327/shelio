@@ -38,6 +38,13 @@ class UserAlreadyActiveException(AccountError):
     message_id = "ERR_ACC_103"
 
 
+class EmailDuplicationError(AccountError):
+    """メールアドレスが既に登録されている場合に発生"""
+
+    default_message = "このメールアドレスは既に登録されています。"
+    message_id = "ERR_ACC_104"
+
+
 class AuthenticationFailedException(AccountError):
     """メールアドレスまたはパスワードが誤っている場合"""
 

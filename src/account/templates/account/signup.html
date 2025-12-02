@@ -5,52 +5,37 @@
 
 {% block extra_head_css %}
 <style>
-	/* 中央配置のためのCSS */
-	.login-container {
-		display: flex;
-		flex-direction: column;
-		justify-content: center;
-		align-items: center;
-		min-height: 100vh;
-		padding: 1rem;
-	}
+    /* 中央配置のためのCSS */
+    .login-container {
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+        align-items: center;
+        min-height: 100vh;
+        padding: 1rem;
+    }
 </style>
 {% endblock %}
 
 {% block extra_js_scripts %}
 <script>
-	// Alpine.js フォームデータロジック (このページでのみ必要)
-	function signupData() {
-		return {
-		  // フォームデータ
-		  email: '',
-		  password: '',
-		  confirmPassword: '',
-		  
-		  // テーマ設定
-		  activeTheme: 'light',
-		  availableThemes: ['light', 'dark', 'cupcake', 'bumblebee', 'emerald', 'corporate', 'synthwave', 'retro', 'cyberpunk', 'valentine', 'halloween', 'garden', 'forest', 'aqua', 'lofi', 'pastel', 'fantasy', 'wireframe', 'black', 'luxury', 'dracula', 'cmyk', 'autumn', 'business', 'acid', 'lemonade', 'night', 'coffee', 'winter', 'dim', 'nord', 'sunset'],
-		  
-		  // パスワードが一致しているかチェックする計算プロパティ
-		  get passwordsMatch() {
-			// 両方のフィールドに値があり、かつ一致する場合にtrue
-			return this.password && this.password === this.confirmPassword;
-		  },
-		  
-		  // 登録処理（ダミー）
-		  submitSignup() {
-			if (!this.passwordsMatch) {
-			  alert('パスワードが一致していません。');
-			  return;
-			}
-			
-			console.log('新規登録試行:', this.email);
-			// ここにDjangoへのフォーム送信ロジックを実装します
-			alert('新規登録を試行します (コンソールを確認してください)');
-			// 成功したら window.location.href = '/dashboard/'; などで遷移
-		  }
-		}
-	}
+    // Alpine.js フォームデータロジック
+    function signupData() {
+        return {
+          // ⭐ フォームデータ: 初期値をDjangoから受け取れるようにする ⭐
+          // ただし、Djangoのフォームレンダリングに任せるため、x-modelは残すが、submitロジックを簡素化
+          email: '{{ form.email.value|default_if_none:"" }}',
+          displayName: '{{ form.display_name.value|default_if_none:"" }}', 
+          password: '',
+          confirmPassword: '',
+
+          // パスワードが一致しているかチェックする計算プロパティ
+          get passwordsMatch() {
+            // クライアント側のチェックは維持
+            return this.password && this.confirmPassword && this.password === this.confirmPassword;
+          },
+        }
+    }
 </script>
 {% endblock %}
 
@@ -58,83 +43,150 @@
 {% block content %}
 
 {# 新規登録ページ専用のレイアウトコンテナ #}
-<div class="login-container">
-	<div class="text-center mb-6">
-	  <h1 class="text-4xl font-bold text-primary">YourApp</h1>
-	  <p class="text-lg text-base-content/70 mt-2">新しいアカウントを作成</p>
-	</div>
+<div class="login-container" x-data="signupData()">
+    <div class="text-center mb-6">
+      <h1 class="text-4xl font-bold text-primary">Loclil</h1>
+      <p class="text-lg text-base-content/70 mt-2">新しいアカウントを作成</p>
+    </div>
   
-	<div class="card w-full max-w-sm bg-base-100 shadow-2xl p-6">
-	  <form class="card-body p-0" @submit.prevent="submitSignup">
-		
-		<div class="form-control">
-		  <label class="label">
-			<span class="label-text">メールアドレス</span>
-		  </label>
-		  <input type="email" 
-				 placeholder="user@example.com" 
-				 class="input input-bordered w-full" 
-				 x-model="email" 
-				 required/>
-		</div>
-		
-		<div class="form-control">
-		  <label class="label">
-			<span class="label-text">パスワード</span>
-		  </label>
-		  <input type="password" 
-				 placeholder="••••••••" 
-				 class="input input-bordered w-full" 
-				 x-model="password" 
-				 minlength="8" 
-				 required/>
-		</div>
+    <div class="card w-full max-w-sm bg-base-100 shadow-2xl p-6">
+      
+      {# ⭐ フォームタグをログイン形式に統一 ⭐ #}
+      <form class="card-body p-0" method="post" action="{% url 'account:signup' %}" x-ref="djangoForm">
+        {% csrf_token %}
+
+        {# フォームの全体エラー表示 #}
+        {% if form.non_field_errors %}
+            <div role="alert" 
+                class="bg-red-100 text-red-700 border border-red-400 p-3 rounded-md text-sm flex items-start mb-4">
+                <svg xmlns="http://www.w3.org/2000/svg" class="stroke-current shrink-0 h-5 w-5 mr-3 mt-0.5" fill="none" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 14l2-2m0 0l2-2m-2 2l-2-2m2 2l2 2m7-2a9 9 0 11-18 0 9 9 0 0118 0z" />
+                </svg>
+                <div>
+                    {% for error in form.non_field_errors %}
+                        <span class="font-medium block">{{ error }}</span>
+                    {% endfor %}
+                </div>
+            </div>
+        {% endif %}
+        
+        {# ⭐ 1. メールアドレス フィールド ⭐ #}
+        {% with field=form.email %}
+          <div class="form-control">
+            <label class="label">
+              <span class="label-text">{{ field.label }}</span>
+            </label>
+            <input type="email" 
+                   placeholder="user@example.com" 
+                   class="input input-bordered w-full {% if field.errors %}input-error{% endif %}" 
+                   name="{{ field.name }}"
+                   id="{{ field.id_for_label }}"
+                   x-model="email" 
+                   value="{{ field.value|default_if_none:'' }}"
+                   required/>
+            {% if field.errors %}
+              <label class="label pb-0">
+                  <span class="label-text-alt text-error">
+                      {% for error in field.errors %}{{ error }}{% endfor %}
+                  </span>
+              </label>
+            {% endif %}
+          </div>
+        {% endwith %}
+
+        {# ⭐ 2. 表示名 フィールド ⭐ #}
+        {% with field=form.display_name %}
+          <div class="form-control">
+            <label class="label">
+              <span class="label-text">{{ field.label }} (任意)</span>
+            </label>
+            <input type="text" 
+                   placeholder="user" 
+                   class="input input-bordered w-full {% if field.errors %}input-error{% endif %}" 
+                   name="{{ field.name }}"
+                   id="{{ field.id_for_label }}"
+                   x-model="displayName"
+                   value="{{ field.value|default_if_none:'' }}" />
+            {% if field.errors %}
+              <label class="label pb-0">
+                  <span class="label-text-alt text-error">
+                      {% for error in field.errors %}{{ error }}{% endfor %}
+                  </span>
+              </label>
+            {% endif %}
+          </div>
+        {% endwith %}
+
+        {# ⭐ 3. パスワード フィールド ⭐ #}
+        {% with field=form.password %}
+          <div class="form-control">
+            <label class="label">
+              <span class="label-text">{{ field.label }}</span>
+            </label>
+            <input type="password" 
+                   placeholder="••••••••" 
+                   class="input input-bordered w-full {% if field.errors %}input-error{% endif %}" 
+                   name="{{ field.name }}"
+                   id="{{ field.id_for_label }}"
+                   x-model="password" 
+                   minlength="8" 
+                   required/>
+            {% if field.errors %}
+              <label class="label pb-0">
+                  <span class="label-text-alt text-error">
+                      {% for error in field.errors %}{{ error }}{% endfor %}
+                  </span>
+              </label>
+            {% endif %}
+          </div>
+        {% endwith %}
   
-		<div class="form-control">
-		  <label class="label">
-			<span class="label-text">パスワード (確認)</span>
-			<span class="label-text-alt text-error" x-show="password && confirmPassword && !passwordsMatch">
-			  パスワードが一致しません
-			</span>
-		  </label>
-		  <input type="password" 
-				 placeholder="••••••••" 
-				 class="input input-bordered w-full" 
-				 :class="{'input-error': password && confirmPassword && !passwordsMatch}"
-				 x-model="confirmPassword" 
-				 required/>
-		</div>
+        {# ⭐ 4. パスワード (確認) フィールド ⭐ #}
+        {% with field=form.password_confirm %}
+          <div class="form-control">
+            <label class="label">
+              <span class="label-text">{{ field.label }}</span>
+              {# クライアント側のパスワード不一致メッセージ #}
+              <span class="label-text-alt text-error" x-show="password && confirmPassword && !passwordsMatch">
+                パスワードが一致しません
+              </span>
+            </label>
+            <input type="password" 
+                   placeholder="••••••••" 
+                   class="input input-bordered w-full 
+                          {% if field.errors %}input-error{% endif %}
+                          {% if password and confirmPassword and not passwordsMatch %}input-error{% endif %}"
+                   name="{{ field.name }}"
+                   id="{{ field.id_for_label }}"
+                   x-model="confirmPassword" 
+                   required/>
+            {% if field.errors %}
+              <label class="label pb-0">
+                  <span class="label-text-alt text-error">
+                      {% for error in field.errors %}{{ error }}{% endfor %}
+                  </span>
+              </label>
+            {% endif %}
+          </div>
+        {% endwith %}
   
-		<div class="form-control mt-6">
-		  <button type="submit" 
-				  class="btn btn-primary" 
-				  :disabled="!passwordsMatch || !email || !password">
-			登録
-		  </button>
-		</div>
-		
-	  </form>
-	</div>
-	
-	<div class="mt-8 text-center w-full max-w-sm">
-	  <p class="text-sm text-base-content/70 mb-4">
-		既にアカウントをお持ちですか？ 
-		<a href="#" class="link link-primary">ログイン</a>
-	  </p>
-  
-	  {% comment %} <div class="dropdown dropdown-top dropdown-hover">
-		<div tabindex="0" role="button" class="btn btn-ghost btn-sm text-xs">
-		  テーマ: <span x-text="activeTheme"></span>
-		</div>
-		<ul tabindex="0" class="dropdown-content menu p-2 shadow bg-base-100 rounded-box w-52 max-h-60 overflow-y-auto">
-		  <template x-for="t in availableThemes" :key="t">
-			<li>
-			  <a @click="activeTheme = t" :class="activeTheme === t ? 'active' : ''" x-text="t"></a>
-			</li>
-		  </template>
-		</ul>
-	  </div> {% endcomment %}
-	</div>
+        <div class="form-control mt-6">
+          <button type="submit" 
+                  class="btn btn-primary" 
+                  :disabled="!email || !password || !confirmPassword || !passwordsMatch">
+            登録
+          </button>
+        </div>
+        
+      </form>
+    </div>
+    
+    <div class="mt-8 text-center w-full max-w-sm">
+      <p class="text-sm text-base-content/70 mb-4">
+        既にアカウントをお持ちですか？ 
+        <a href="{% url 'account:login' %}" class="link link-primary">ログイン</a>
+      </p>
+    </div>
   
 </div>
 
