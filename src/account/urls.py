@@ -27,6 +27,7 @@
 
 from django.urls import path
 
+from account.views.activate import UserActivationView
 from account.views.activate_pending import ActivatePendingView
 from account.views.login import CustomLoginView
 from account.views.signup import CustomSignupView
@@ -38,6 +39,8 @@ urlpatterns = [
     path("login/", CustomLoginView.as_view(), name="login"),
     path("signup/", CustomSignupView.as_view(), name="signup"),
     path("activate_pending/", ActivatePendingView.as_view(), name="activate_pending"),
+    path("activate_pending/", ActivatePendingView.as_view(), name="activate_pending"),
+    path("activate/<str:token_value>/", UserActivationView.as_view(), name="activate"),
     # ログアウト用のURLもついでに設定しておくと便利です
     # path('logout/', LogoutView.as_view(next_page='/'), name='logout'),
 ]

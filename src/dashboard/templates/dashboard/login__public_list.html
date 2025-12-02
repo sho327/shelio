@@ -1,0 +1,248 @@
+{% extends "core/base.html" %}
+
+{% block title %}公開作品一覧 - Loclil{% endblock %}
+
+{% block extra_js_scripts %}
+  <script>
+    function feedData() {
+      return {
+        // 検索・フィルタリング用データ
+        searchText: '',
+        filterLanguage: 'All',
+        
+        // テーマ設定
+        activeTheme: 'light',
+        availableThemes: ['light', 'dark', 'cupcake', 'bumblebee', 'emerald', 'corporate', 'synthwave', 'retro', 'cyberpunk', 'valentine', 'halloween', 'garden', 'forest', 'aqua', 'lofi', 'pastel', 'fantasy', 'wireframe', 'black', 'luxury', 'dracula', 'cmyk', 'autumn', 'business', 'acid', 'lemonade', 'night', 'coffee', 'winter', 'dim', 'nord', 'sunset'],
+        
+        // ⭐ 公開作品リストのサンプルデータ ⭐
+        publicProjects: [
+          { id: 1, title: 'フルスタックブログシステム', author: 'Kenji_Dev', language: 'Django/HTMX', summary: '非同期処理に挑戦したブログシステム。デプロイ先URLあり。', likes: 154, comments: 22, image: 'https://placehold.jp/400x200.png?text=Blog+System', isLiked: false, tags: ['Django', 'Python', 'HTMX'] },
+          { id: 2, title: 'Vue.js製タスク管理', author: 'Aoi_Web', language: 'Vue.js/Firebase', summary: 'コンポーネント指向を意識したシンプルUIのタスク管理アプリ。', likes: 88, comments: 5, image: 'https://placehold.jp/400x200.png?text=Task+App', isLiked: true, tags: ['Vue.js', 'Firebase', 'TypeScript'] },
+          { id: 3, title: 'ローカルAIデモ', author: 'Dr_Python', language: 'Python/Streamlit', summary: '自作の機械学習モデルをStreamlitで公開中。ローカル動作可。', likes: 320, comments: 60, image: 'https://placehold.jp/400x200.png?text=A.I.+Demo', isLiked: false, tags: ['AI/ML', 'Python', 'Streamlit'] },
+          { id: 4, title: 'Tailwind CSSポートフォリオ', author: 'Shogo_Design', language: 'Tailwind CSS', summary: 'Tailwind Utility Firstで構築したモダンなポートフォリオサイト。', likes: 45, comments: 10, image: 'https://placehold.jp/400x200.png?text=Portfolio', isLiked: false, tags: ['Tailwind CSS', 'React', 'Vite'] },
+        ],
+    
+        // ⭐ 【追加】人気タグデータ ⭐
+        popularTags: [
+          { name: 'Django', count: 580 },
+          { name: 'React', count: 450 },
+          { name: 'AI/ML', count: 320 },
+          { name: 'Tailwind CSS', count: 280 },
+          { name: 'Vite', count: 190 },
+          { name: 'TypeScript', count: 150 },
+          { name: 'Firebase', count: 110 },
+          { name: 'Go', count: 90 },
+        ],
+        // ⭐ 【追加】タグをクリックして検索テキストを更新する関数 ⭐
+        searchByTag(tag) {
+            this.searchText = tag;
+        },
+        
+        // ⭐ ランキング用データ ⭐
+        rankedProjects: [
+            { rank: 1, id: 105, title: '次世代UIデザインツール', author: 'DesignAI', metric: 450, category: 'Design' },
+            { rank: 2, id: 106, title: 'Python高速化ライブラリ', author: 'PyGuru', metric: 380, category: 'Backend' },
+            { rank: 3, id: 107, title: 'AIチャットボット統合事例', author: 'AITaro', metric: 310, category: 'AI/ML' },
+            { rank: 4, id: 108, title: 'Vue.js入門チュートリアル', author: 'FrontEndKoubou', metric: 250, category: 'Frontend' },
+            { rank: 5, id: 109, title: 'TypeScript完全マスター', author: 'TSKen', metric: 210, category: 'Frontend' },
+        ],
+        // ランクに応じたカラークラスを返すヘルパー関数
+        getRankColor(rank) {
+            if (rank === 1) return 'bg-yellow-500 text-white'; 
+            if (rank === 2) return 'bg-gray-400 text-white';   
+            if (rank === 3) return 'bg-amber-700 text-white'; 
+            return 'bg-base-300';
+        },
+        // ----------------------------------------
+    
+        // いいねトグル機能
+        toggleLike(projectId) {
+          const project = this.publicProjects.find(p => p.id === projectId);
+          if (project) {
+            if (project.isLiked) {
+              project.likes--;
+              project.isLiked = false;
+            } else {
+              project.likes++;
+              project.isLiked = true;
+            }
+            console.log(`Project ${projectId}: いいねをトグルしました`);
+          }
+        },
+        
+        // フィルタリングされたプロジェクトを返す計算プロパティ
+        get filteredProjects() {
+          return this.publicProjects.filter(project => {
+            // 検索テキストによるフィルタ: タイトル、概要、言語、タグのいずれかにマッチ
+            const searchMatch = (
+                project.title.toLowerCase().includes(this.searchText.toLowerCase()) ||
+                project.summary.toLowerCase().includes(this.searchText.toLowerCase()) ||
+                project.language.toLowerCase().includes(this.searchText.toLowerCase()) ||
+                project.tags.some(tag => tag.toLowerCase().includes(this.searchText.toLowerCase()))
+            );
+            const languageMatch = this.filterLanguage === 'All' || project.language.includes(this.filterLanguage);
+            return searchMatch && languageMatch;
+          });
+        }
+      }
+    }
+  </script>
+{% endblock %}
+
+{% block content %}
+<div class="mb-6" x-data="feedData()">
+  <h1 class="text-2xl font-bold mb-1">公開作品一覧</h1>
+  <p class="text-base-content/70">開発者たちのローカルな作品やアイデアを発見しましょう。</p>
+
+
+  <div class="grid grid-cols-1 lg:grid-cols-4 gap-6">
+
+    <div class="lg:col-span-3 space-y-6">
+
+        <div class="flex flex-col md:flex-row gap-4 bg-base-100 p-4 rounded-lg shadow-md">
+          <div class="form-control flex-1">
+            <input type="text" 
+                  placeholder="作品名、技術スタックで検索..." 
+                  class="input input-bordered w-full" 
+                  x-model="searchText"/>
+          </div>
+          
+          <div class="form-control md:w-48">
+            <select class="select select-bordered" x-model="filterLanguage">
+              <option value="All">すべての技術スタック</option>
+              <option value="Django">Django/Python</option>
+              <option value="React">React</option>
+              <option value="Vue.js">Vue.js</option>
+              <option value="Tailwind">Tailwind CSS</option>
+              <option value="JavaScript">JavaScript</option>
+              <option value="Python">Python</option>
+            </select>
+          </div>
+        </div>
+
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+          <template x-for="project in filteredProjects" :key="project.id">
+            <div class="card bg-base-100 shadow-xl rounded-lg hover:shadow-2xl transition duration-300">
+              
+              <figure>
+                <img :src="project.image" :alt="project.title" class="w-full h-40 object-cover rounded-t-lg"/>
+              </figure>
+              
+              <div class="card-body p-4"> 
+                
+                <h2 class="card-title text-lg mb-1 hover:text-primary transition duration-200">
+                  <a href="#" x-text="project.title"></a>
+                </h2>
+                
+                <p class="text-sm text-base-content/70 line-clamp-2 mb-2" x-text="project.summary"></p>
+                
+                <div class="flex justify-between items-center text-sm text-base-content/70 mb-3">
+                  <div class="flex items-center gap-2">
+                    <span class="font-semibold">@<span x-text="project.author"></span></span>
+                  </div>
+                  <div class="badge badge-outline badge-sm" x-text="project.language"></div>
+                </div>
+
+                <div class="card-actions justify-between mt-auto">
+                  <button class="btn btn-ghost btn-sm gap-2" 
+                          @click="toggleLike(project.id)">
+                    <svg x-bind:class="project.isLiked ? 'text-error fill-current' : 'text-base-content/50'" 
+                        xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                      <path stroke-linecap="round" stroke-linejoin="round" d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z"></path>
+                    </svg>
+                    <span x-text="project.likes.toLocaleString()"></span>
+                  </button>
+                  
+                  <button class="btn btn-ghost btn-sm gap-2">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-base-content/50" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                      <path stroke-linecap="round" stroke-linejoin="round" d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.86 9.86 0 01-4.733-1.248l-3.217.915a1 1 0 01-1.218-1.218l.915-3.217A9.86 9.86 0 013 12c0-4.418 4.03-8 9-8s9 3.582 9 8z"></path>
+                    </svg>
+                    <span x-text="project.comments"></span>
+                  </button>
+
+                  <a href="#" class="btn btn-primary btn-sm">詳細</a>
+                </div>
+              </div>
+            </div>
+          </template>
+          
+          <template x-if="filteredProjects.length === 0">
+            <div class="lg:col-span-3 text-center py-12 text-base-content/70">
+              <p class="text-lg font-semibold mb-2">該当する作品が見つかりませんでした。</p>
+              <p>検索条件を変更するか、新しい作品の投稿をお待ちください。</p>
+            </div>
+          </template>
+        </div>
+
+    </div>
+    <div class="lg:col-span-1 space-y-6">
+      
+      <div class="card bg-base-100 shadow-xl border border-base-300">
+          <div class="card-body p-4 sm:p-6">
+              <h2 class="text-xl font-bold text-base-content flex items-center gap-2 mb-4 border-b border-primary/50 pb-2">
+                  <i class="fas fa-trophy text-warning"></i>
+                  デイリーランキング
+              </h2>
+              
+              <ul class="space-y-3">
+                  <template x-for="project in rankedProjects" :key="project.id">
+                      <li class="flex items-center gap-3 p-2 rounded-lg hover:bg-base-200 transition-colors">
+                          
+                          <div class="w-8 h-8 flex items-center justify-center font-extrabold text-sm rounded-full flex-shrink-0"
+                              :class="getRankColor(project.rank)">
+                              <span x-text="project.rank"></span>
+                          </div>
+
+                          <div class="flex-grow min-w-0">
+                              <a :href="'/project/' + project.id" class="text-base font-semibold truncate hover:text-primary transition-colors block" x-text="project.title"></a>
+                              <p class="text-sm text-base-content/70 flex items-center gap-1">
+                                  <i class="fas fa-user-circle text-xs"></i>
+                                  <span x-text="project.author"></span>
+                              </p>
+                          </div>
+
+                          <div class="text-right flex-shrink-0">
+                              <span class="text-md font-bold text-error" x-text="project.metric.toLocaleString()"></span>
+                              <p class="text-xs text-base-content/60">デイリーいいね</p>
+                          </div>
+                      </li>
+                  </template>
+              </ul>
+              
+              <div class="card-actions justify-center mt-4 pt-3 border-t border-base-200">
+                  <a href="/ranking" class="btn btn-ghost btn-sm text-primary">
+                      ランキングをもっと見る
+                      <i class="fas fa-chevron-right text-xs"></i>
+                  </a>
+              </div>
+          </div>
+      </div>
+
+      <div class="card bg-base-100 shadow-xl border border-base-300">
+          <div class="card-body p-4 sm:p-6">
+              <h2 class="text-xl font-bold text-base-content flex items-center gap-2 mb-4 border-b border-info/50 pb-2">
+                  <i class="fas fa-tags text-info"></i>
+                  人気タグ (トレンド)
+              </h2>
+              
+              <div class="flex flex-wrap gap-2">
+                  <template x-for="tag in popularTags" :key="tag.name">
+                      <div class="tooltip" :data-tip="tag.count + ' 件の関連作品'">
+                        <button class="badge badge-lg badge-outline badge-info hover:bg-info hover:text-white cursor-pointer transition-all duration-200"
+                                @click="searchByTag(tag.name)" 
+                                x-text="tag.name">
+                        </button>
+                      </div>
+                  </template>
+              </div>
+              
+              <p class="text-xs text-base-content/60 mt-4 pt-2 border-t border-base-200">
+                クリックすると、検索バーにタグが入力され、作品が絞り込まれます。
+              </p>
+          </div>
+      </div>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock content %}

@@ -174,8 +174,8 @@ class UserService:
         # 2. トークンを検索（ハッシュ値、種別、未期限切れ、未削除を条件とする）
         token_instance = self.token_repo.get_alive_one_or_none(
             token_hash=token_hash,
-            type=TokenTypes.ACTIVATION,
-            expires_at__gt=now,  # 現在時刻より期限が未来であること
+            token_type=TokenTypes.ACTIVATION,
+            expired_at__gt=now,  # 現在時刻より期限が未来であること
         )
 
         if not token_instance:
