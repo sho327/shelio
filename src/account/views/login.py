@@ -1,5 +1,6 @@
 # LoginView ではなく FormView をインポート
 from django.conf import settings
+from django.contrib import messages
 from django.contrib.auth import login
 from django.http import HttpResponseRedirect
 from django.shortcuts import redirect
@@ -12,6 +13,7 @@ from account.forms.login import AuthenticationForm
 # AuthServiceとカスタム例外をインポート
 from account.services.auth_service import AuthService
 from core.decorators.logging_sql_queries import logging_sql_queries
+from core.exceptions import IntegrityError
 
 process_name = "LoginView"
 
@@ -55,16 +57,28 @@ class LoginView(FormView):
             # return super().form_valid(form) の代わりに、直接リダイレクトを返す
             return redirect(self.get_success_url())
 
-        except (AuthenticationFailedException, AccountLockedException) as e:
-            # 5. 認証失敗: エラーメッセージをフォームに追加し、再レンダリング
+        except AuthenticationFailedException:
+            # ユーザーフレンドリーなエラーメッセージをフォームに付加
+            form.add_error(None, "メールアドレスまたはパスワードが正しくありません。")
+            return self.form_invalid(form)  # フォーム再表示
 
-            error_message = "メールアドレスまたはパスワードが正しくありません。"
-            if isinstance(e, AccountLockedException):
-                error_message = "アカウントはロックされているか、無効化されています。"
+        except AccountLockedException:
+            form.add_error(
+                None,
+                "このアカウントは現在利用できません。管理者にお問い合わせください。",
+            )
+            return self.form_invalid(form)  # フォーム再表示
 
-            # フォーム全体のエラーとして追加
-            form.add_error(None, error_message)
+        except IntegrityError:
+            # DB側のエラー。システムエラーとして処理
+            messages.error(
+                self.request,
+                "システムエラーが発生しました。時間をおいて再度お試しください。",
+            )
+            return self.form_invalid(form)  # フォーム再表示
 
-            # form_invalidを呼び出し、エラーメッセージとともにテンプレートを再レンダリング
-            # return self.form_invalid(form) は FormView の標準的なエラー処理
+        except Exception:
+            # 予期せぬエラーの最終捕捉
+            messages.error(self.request, "予期せぬエラーが発生しました。")
+            # ログ記録推奨
             return self.form_invalid(form)
