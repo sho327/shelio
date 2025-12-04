@@ -74,17 +74,21 @@ SITE_ID = 1
 MIDDLEWARE = [
     # 独自ミドルウェア (SameSiteMiddlewareはCSRF/SessionMiddlewareより前に配置)
     "core.middlewares.same_site_middleware.SameSiteMiddleware",
-    # Django 標準 Middleware
+    # Django標準のミドルウェア
     "django.middleware.security.SecurityMiddleware",
     "django.contrib.sessions.middleware.SessionMiddleware",
-    "corsheaders.middleware.CorsMiddleware",
     "django.middleware.common.CommonMiddleware",
     "django.middleware.csrf.CsrfViewMiddleware",
-    "django.contrib.auth.middleware.AuthenticationMiddleware",
+    # --- 認証とセッション ---
+    "django.contrib.auth.middleware.AuthenticationMiddleware",  # ユーザー認証を行うミドルウェア
     "django.contrib.messages.middleware.MessageMiddleware",
-    "django.middleware.clickjacking.XFrameOptionsMiddleware",
+    # --- カスタムミドルウェア ---
+    # 初期設定ミドルウェア(環境変数の必須チェック等)
+    "core.middlewares.initial_setup_required_middleware.InitialSetupRequiredMiddleware",
     # アクセスログ設定ミドルウェア
     "core.middlewares.logging_middleware.LoggingMiddleware",
+    # --- その他 ---
+    "django.middleware.clickjacking.XFrameOptionsMiddleware",
 ]
 ROOT_URLCONF = "config.urls"
 # 特定のシステムチェック警告を非表示にする
@@ -175,6 +179,7 @@ DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
 
 # Djangoのデフォルト設定（明示的に書いていない場合もこの値が使われる）
 LOGIN_URL = "/account/login/"
+INITIAL_SETUP_URL = "/account/initial_setup/"
 
 # ==============================================================================
 # 6. CLOUDINARY & EMAIL

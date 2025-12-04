@@ -1,0 +1,130 @@
+{% extends "core/auth/base.html" %}
+{% load static %}
+
+{% block title %}初期設定 - {{ SITE_NAME }}{% endblock %}
+
+{# --- HEAD/CSS --- #}
+{% block extra_head_css %}
+<style>
+    /* 中央配置のためのCSS */
+    .login-container {
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+        align-items: center;
+        min-height: 100vh;
+        padding: 1rem;
+    }
+</style>
+{% endblock %}
+
+
+{# --- Alpine.js Data --- #}
+{% block extra_js_scripts %}
+<script>
+    // Alpine.js フォームデータロジック (フィールド初期値設定用)
+    function profileData() {
+        return {
+            // Djangoのフォームフィールド名に合わせて初期値を設定（フォームが渡す既存値があればそれが優先）
+            // 注意: x-modelの初期値はテンプレートのvalue属性で設定するのが一般的だが、
+            // ここではAlpine側で初期化されると仮定し、テンプレートのvalueを優先させる
+            displayName: "{{ form.display_name.value|default_if_none:'' }}", 
+            
+            submitProfile() {
+                // Django標準のフォーム送信に戻す
+                this.$refs.djangoForm.submit();
+            }
+        }
+    }
+</script>
+{% endblock %}
+
+
+{# --- CONTENT --- #}
+{% block content %}
+
+<div class="login-container" x-data="profileData()">
+  
+  <div class="text-center mb-6">
+    <h1 class="text-4xl font-bold text-primary">{{ SITE_NAME }}</h1>
+    <p class="text-lg text-base-content/70 mt-2">ようこそ！プロフィールを初期設定してください</p>
+  </div>
+
+  <div class="card w-full max-w-sm bg-base-100 shadow-2xl p-8">
+    
+    {# Django標準のフォーム送信を利用 #}
+    <form class="card-body p-0" method="post" action="" x-ref="djangoForm">
+      {% csrf_token %}
+      
+      {# フォームの全体エラー表示 #}
+      {% if form.non_field_errors %}
+          <div role="alert" 
+               class="bg-red-100 text-red-700 border border-red-400 p-3 rounded-md text-sm flex items-start">
+              <svg xmlns="http://www.w3.org/2000/svg" class="stroke-current shrink-0 h-5 w-5 mr-3 mt-0.5" fill="none" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 14l2-2m0 0l2-2m-2 2l-2-2m2 2l2 2m7-2a9 9 0 11-18 0 9 9 0 0118 0z" />
+              </svg>
+              <div>
+                  {% for error in form.non_field_errors %}
+                      <span class="font-medium block">{{ error }}</span>
+                  {% endfor %}
+              </div>
+          </div>
+      {% endif %}
+
+      {# 1. 表示名 (display_name) フィールド #}
+      {% with field=form.display_name %}
+        <div class="form-control">
+          <label class="label">
+            <span class="label-text font-bold">{{ field.label }} <span class="text-error">*</span></span>
+          </label>
+          <input type="text" 
+               name="{{ field.name }}"
+               id="{{ field.id_for_label }}"
+               placeholder="例: Kenji_Dev" 
+               class="input input-bordered w-full rounded-md {% if field.errors %}input-error{% endif %}" 
+               x-model="displayName" 
+               required
+               value="{{ field.value|default_if_none:'' }}"/>
+          
+          <label class="label">
+            <span class="label-text-alt text-base-content/70">
+              {% if field.help_text %}
+                {{ field.help_text }}
+              {% else %}
+                サービス内であなたを識別するために使用されます。
+              {% endif %}
+            </span>
+          </label>
+          
+          {% if field.errors %}
+            <label class="label pt-0">
+              <span class="label-text-alt text-error">
+                {% for error in field.errors %}{{ error }}{% endfor %}
+              </span>
+            </label>
+          {% endif %}
+        </div>
+      {% endwith %}
+
+      {# 2. その他のフィールドがあればここに追記する (例: bio, githubUrl) #}
+      {# フォームクラスでこれらを定義していない場合は、非表示のままになるか、エラーになります #}
+      
+      <div class="form-control mt-8">
+        {# AlpineのsubmitLoginを呼び出すか、直接submitにする #}
+        <button type="submit" 
+                class="btn btn-primary rounded-md" 
+                :disabled="!displayName"
+                @click="submitProfile()">
+          設定を完了してダッシュボードへ
+        </button>
+      </div>
+      
+    </form>
+  </div>
+  
+  {# テーマ選択部分（ログインテンプレートに合わせるため削除または外部化推奨） #}
+  {# ここはDjangoビューの責務外であり、テーマ切り替えはbaseテンプレートか外部JSで行うべきです #}
+
+</div>
+
+{% endblock %}

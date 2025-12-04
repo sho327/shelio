@@ -1,6 +1,7 @@
 from django.urls import path
 
 from account.views.activate_user import ActivateUserView
+from account.views.initial_setup import InitialSetupView
 from account.views.login import LoginView
 from account.views.logout import LogoutView
 from account.views.password_reset_confirm import PasswordResetConfirmView
@@ -37,5 +38,10 @@ urlpatterns = [
         "password_reset_confirm/<str:token_value>/",
         PasswordResetConfirmView.as_view(),
         name="password_reset_confirm",
+    ),
+    path(
+        "initial_setup/",
+        InitialSetupView.as_view(),
+        name="initial_setup",
     ),
 ]

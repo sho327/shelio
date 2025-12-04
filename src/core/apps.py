@@ -11,5 +11,9 @@ class CoreConfig(AppConfig):
     default_auto_field = "django.db.models.BigAutoField"
 
     def ready(self):
-        # アプリケーションのシグナルなどをロードする必要がある場合に記述します
-        pass
+        # アプリケーション起動時にバリデーションを実行
+        from core.validators.validate_required_settings import (
+            validate_required_settings,
+        )
+
+        validate_required_settings()

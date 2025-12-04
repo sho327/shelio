@@ -1,9 +1,7 @@
-from audioop import reverse
-
 from django.contrib import messages
 from django.contrib.auth import logout
 from django.shortcuts import redirect
-from django.urls import reverse_lazy
+from django.urls import reverse, reverse_lazy
 from django.views import View
 
 

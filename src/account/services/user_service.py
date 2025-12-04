@@ -63,14 +63,29 @@ class UserService:
         # 4. 絶対URLを構築
         activation_url = f"{scheme}://{domain}{path}"
 
+        # 有効期限の表示（secondsをhoursに変換）
+        expiry_seconds = settings.TOKEN_EXPIRY_SECONDS.get("activation", 3600)
+        expiry_hours = expiry_seconds / 3600
+
         # メール本文に利用
         subject = f"【{APP_NAME}】仮登録完了のお知らせ"
-        message = f"{APP_NAME}にご登録いただきありがとうございます。次のリンクをクリックしてアカウントを有効化してください。\n {activation_url}"
+        message = (
+            f"{APP_NAME}にご登録いただきありがとうございます。\n"
+            f"次のリンクをクリックしてアカウントを有効化してください（有効期限：{expiry_hours}時間）。\n"
+            f"{activation_url}"
+        )
         from_email = settings.EMAIL_FROM
         recipient_list = [
             m_user_instance.email,
         ]
-        send_mail(subject, message, from_email, recipient_list)
+        try:
+            send_mail(subject, message, from_email, recipient_list)
+        except Exception as e:
+            # send_mailはSMTP接続失敗など、様々なエラーを投げる可能性がある
+            raise ExternalServiceError(
+                message="アクティベーションメールの送信に失敗しました。",
+                details={"recipient": m_user_instance.email, "internal_error": str(e)},
+            )
         return True
 
     # ------------------------------------------------------------------
@@ -204,3 +219,50 @@ class UserService:
         self.token_repo.soft_delete(token_instance)
 
         return updated_user
+
+    @transaction.atomic
+    def update_initial_setup_status(self, user: User, display_name: str = None) -> User:
+        """
+        ユーザーの初回設定を更新し、is_first_loginフラグをFalseに設定する。
+        Args:
+            user (User): 更新対象のユーザーインスタンス
+            display_name (str, optional): 更新する表示名
+        Returns:
+            User: 更新されたユーザーインスタンス
+        Raises:
+            IntegrityError: データベース操作中にエラーが発生した場合
+        """
+        try:
+            # 1. UserProfileの更新（表示名）
+            if display_name is not None:
+                # プロフィールが存在するかチェック
+                profile = self.profile_repo.get_alive_one_or_none(m_user=user.pk)
+                if profile:
+                    # 既存のプロフィールを更新
+                    self.profile_repo.update(profile, display_name=display_name)
+                else:
+                    # プロフィールが存在しない場合は新規作成
+                    self.profile_repo.create(m_user=user, display_name=display_name)
+
+            # 2. is_first_loginフラグの更新
+            if user.is_first_login:
+                user.is_first_login = False
+                updated_user = self.user_repo.update(
+                    user,
+                    is_first_login=False,
+                )
+            else:
+                updated_user = user  # フラグ変更がない場合は元のユーザーを返す
+
+            return updated_user
+
+        except Exception as e:
+            log_output_by_msg_id(
+                log_id="MSGE002",
+                params=[f"Error updating initial setup for user {user.pk}: {e}"],
+                logger_name=LOG_METHOD.APPLICATION.value,
+            )
+            raise IntegrityError(
+                message="初回設定の更新中に予期せぬエラーが発生しました。",
+                details={"internal_message": str(e)},
+            )
