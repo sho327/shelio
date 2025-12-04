@@ -96,6 +96,10 @@ ROOT_URLCONF = "config.urls"
 SILENCED_SYSTEM_CHECKS = [
     "auth.W004",
 ]
+# アプリ名
+APP_NAME = "shelio"
+USE_CLOUD_STORAGE = False
+
 
 # ==============================================================================
 # 3. TEMPLATES

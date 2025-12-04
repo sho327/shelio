@@ -1,9 +1,6 @@
 from enum import Enum
 from typing import List
 
-# アプリ名
-APP_NAME = "shelio"
-
 
 # ログレベル
 class LOG_LEVEL(Enum):

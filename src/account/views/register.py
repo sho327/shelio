@@ -1,14 +1,10 @@
-from django.contrib.auth import login
 from django.http import HttpResponseRedirect
 from django.shortcuts import redirect
 from django.urls import reverse_lazy
 from django.views.generic.edit import FormView
 
-# サインアップフォームをインポート
 from account.forms.signup import SignupForm
-
-# AuthServiceとカスタム例外をインポート
-from account.services.user_service import UserService
+from account.services.auth_service import AuthService
 from core.decorators.logging_sql_queries import logging_sql_queries
 
 process_name = "RegisterView"
@@ -27,11 +23,11 @@ class RegisterView(FormView):
         password = form.cleaned_data["password"]
         display_name = form.cleaned_data.get("display_name")
 
-        user_service = UserService()
+        auth_service = AuthService()
 
         try:
             # 1. サービスを介してユーザーを作成・保存
-            user_service.register_new_user(
+            auth_service.register_new_user(
                 email=email, password=password, display_name=display_name
             )
 
@@ -39,8 +35,7 @@ class RegisterView(FormView):
             return redirect(self.get_success_url())
 
         except Exception as e:
-            # サービス層で発生した予期せぬエラーをキャッチし、フォームエラーとして表示
-            # form.add_error(None, str(e))
+            # サービス層で発生したエラーを予期せぬエラーとして返す
             form.add_error(
                 None,
                 "予期せぬエラーが発生しました。",

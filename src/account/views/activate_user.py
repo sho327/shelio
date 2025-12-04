@@ -7,7 +7,7 @@ from account.exceptions import (
     TokenExpiredOrNotFoundException,
     UserAlreadyActiveException,
 )
-from account.services.user_service import UserService
+from account.services.auth_service import AuthService
 
 
 class ActivateUserView(View):
@@ -16,11 +16,11 @@ class ActivateUserView(View):
     """
 
     def get(self, request, token_value):
-        user_service = UserService()
+        auth_service = AuthService()
 
         try:
             # サービス層でアカウントを有効化
-            user = user_service.activate_user(raw_token_value=token_value)
+            user = auth_service.activate_user(raw_token_value=token_value)
 
             # 成功: ユーザーを強制的にログインさせる (UX向上のためオプション)
             login(self.request, user)

@@ -42,13 +42,14 @@ class InitialSetupView(LoginRequiredMixin, UpdateView):
 
     def form_valid(self, form):
         user = self.request.user  # 現在のユーザーを取得
-        display_name = form.cleaned_data.get("display_name")
+        # フォームデータを抽出し、ファイルと分けてサービスに渡す
+        profile_data = form.cleaned_data.copy()
+        icon_file = profile_data.pop("icon", None)  # icon_fileを分離
 
         try:
             # サービス層を呼び出し、初回設定情報を更新
-            updated_user = self.user_service.update_initial_setup_status(
-                user=user,
-                display_name=display_name,
+            self.user_service.initial_setup(
+                user=self.request.user, profile_data=profile_data, icon_file=icon_file
             )
             # フォームはUserProfileを更新するだけなので、super().form_validは呼ばない
             # もしUserモデルのフィールドもフォームで更新する場合は super().form_valid(form)を呼ぶ

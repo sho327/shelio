@@ -1,7 +1,5 @@
 from django.conf import settings
 
-from core.consts import APP_NAME
-
 
 # --------------------------------------------------
 # Context Processor 関数本体(テンプレートに共通的に渡すパラメータ)
@@ -16,7 +14,7 @@ def global_settings(request):
     token_expiry = getattr(settings, "TOKEN_EXPIRY_SECONDS", {})
     # ユーザーがログインしているかどうかにかかわらず、全テンプレートで参照可能
     return {
-        "SITE_NAME": APP_NAME,
+        "SITE_NAME": settings.APP_NAME,
         # メンテナンスモードなどのアプリケーション設定
         "MAINTENANCE_MODE": False,
         # トークン有効期限などの定数

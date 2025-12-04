@@ -5,10 +5,7 @@ from django.shortcuts import redirect
 from django.urls import reverse_lazy
 from django.views.generic import FormView
 
-# サービス層で定義された例外をインポート
 from account.forms.password_reset_request import PasswordResetRequestForm
-
-# 必要なサービスとフォームをインポート
 from account.services.auth_service import AuthService
 from core.exceptions import ExternalServiceError, IntegrityError
 

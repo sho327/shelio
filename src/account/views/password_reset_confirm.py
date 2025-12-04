@@ -5,13 +5,11 @@ from django.views.generic import FormView
 
 from account.exceptions import PasswordResetTokenInvalidException
 from account.forms.password_reset_confirm import PasswordResetConfirmForm
-
-# 必要なサービスとフォームをインポート
 from account.services.auth_service import AuthService
-from core.exceptions import IntegrityError  # コア例外をインポート
+from core.exceptions import IntegrityError
 
 
-# パスワードリセット確認＆実行ビュー (トークン検証とパスワード設定)
+# パスワードリセット確認＆実行ビュー(トークン検証とパスワード設定)
 class PasswordResetConfirmView(FormView):
     template_name = "account/password_reset_confirm.html"
     form_class = PasswordResetConfirmForm
