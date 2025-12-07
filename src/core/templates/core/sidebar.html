@@ -7,20 +7,6 @@
          x-transition:leave="transition ease-in duration-200"
          x-transition:leave-start="opacity-100 translate-x-0"
          x-transition:leave-end="opacity-0 translate-x-4">
-      <div class="mb-4">
-        <div class="text-sm text-base-content/70">開発者名</div>
-        <div class="font-semibold">
-          {% if user.is_authenticated %}
-            {% if USER_PROFILE and USER_PROFILE.display_name %}
-              {{ USER_PROFILE.display_name }}
-            {% else %}
-              {{ user.email }}
-            {% endif %}
-          {% else %}
-            ゲスト
-          {% endif %}
-        </div>
-      </div>
     </div>
     
     <nav class="menu flex-1 menu-compact"> 
@@ -32,7 +18,8 @@
         </li>
 
         <li>
-          <a x-tooltip="ダッシュボード" 
+          <a x-tooltip="ダッシュボード"
+             href="{% url 'dashboard:dashboard' %}"
              class="flex items-center gap-2"
              :class="{
                  'active': activePath === 'dashboard', 
@@ -106,6 +93,7 @@
         
         <li>
           <a x-tooltip="設定"
+             href="{% url 'account:profile_edit' %}"
              class="flex items-center gap-2"
              :class="{
                  'active': activePath === 'settings', 
@@ -134,21 +122,7 @@
   <div x-show="drawerOpen" class="fixed inset-0 z-40 flex">
     <div class="fixed inset-0 bg-base-300/60" @click="drawerOpen = false"></div>
     <aside class="bg-base-100 w-64 p-4 shadow-lg z-50 pt-20 h-full">
-      <div class="flex items-center justify-between mb-4">
-        <div>
-          <div class="text-sm text-base-content/70">開発者名</div>
-          <div class="font-semibold">
-            {% if user.is_authenticated %}
-              {% if USER_PROFILE and USER_PROFILE.display_name %}
-                {{ USER_PROFILE.display_name }}
-              {% else %}
-                {{ user.email }}
-              {% endif %}
-            {% else %}
-              ゲスト
-            {% endif %}
-          </div>
-        </div>
+      <div class="flex items-center justify-end mb-4">
         <button class="btn btn-ghost" @click="drawerOpen = false">閉じる</button>
       </div>
       <nav class="menu">

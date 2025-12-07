@@ -42,6 +42,7 @@
 </head>
 <body class="bg-base-200 h-screen flex flex-col overflow-hidden">
 
+
 <script>
 function appData() {
   return {
@@ -50,7 +51,9 @@ function appData() {
     activeTheme: 'business',
     // activeTheme: 'light',
     availableThemes: ['light', 'dark', 'cupcake', 'bumblebee', 'emerald', 'corporate', 'synthwave', 'retro', 'cyberpunk', 'valentine', 'halloween', 'garden', 'forest', 'aqua', 'lofi', 'pastel', 'fantasy', 'wireframe', 'black', 'luxury', 'dracula', 'cmyk', 'autumn', 'business', 'acid', 'lemonade', 'night', 'coffee', 'winter', 'dim', 'nord', 'sunset'],
-    activePath: 'dashboard', 
+    
+    // 現在のページに基づいてアクティブなパスを設定
+    activePath: '{% if request.resolver_match.app_name == "dashboard" %}dashboard{% elif "account" in request.resolver_match.app_name or request.resolver_match.app_name == "account" %}settings{% else %}dashboard{% endif %}',
     
     // ダッシュボード専用データ (プロジェクトリストのサンプル)
     projects: [
