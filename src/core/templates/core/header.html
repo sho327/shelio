@@ -47,7 +47,7 @@
 			{% endif %}
 		  </span>
 		</button>
-		<ul x-show="open" @click.outside="open=false" class="absolute top-10 right-0 mt-1 dropdown-content menu p-2 shadow bg-base-100 rounded-box w-52 z-50">
+		<ul x-cloak x-show="open" @click.outside="open=false" class="absolute top-10 right-0 mt-1 dropdown-content menu p-2 shadow bg-base-100 rounded-box w-52 z-50">
 		  <li><a href="{% url 'account:profile' %}">プロフィール</a></li>
 		  <li><a>設定</a></li>
 		  

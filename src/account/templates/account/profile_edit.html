@@ -310,6 +310,29 @@
         {% endwith %}
 
         <div class="divider"></div>
+        <h2 class="text-xl font-semibold mb-3">表示設定</h2>
+
+        {# Theme #}
+        <div class="form-control mb-4">
+            <label class="label" for="{{ form.theme.id_for_label }}">
+                <span class="label-text font-bold">テーマ</span>
+            </label>
+            <select name="{{ form.theme.name }}" 
+                    id="{{ form.theme.id_for_label }}"
+                    class="select select-bordered w-full max-w-xs"
+                    @change="activeTheme = $event.target.value">
+              {% for value, label in form.theme.field.choices %}
+                <option value="{{ value }}" {% if form.theme.value == value %}selected{% endif %}>{{ label }}</option>
+              {% endfor %}
+            </select>
+            {% if form.theme.help_text %}
+              <label class="label">
+                <span class="label-text-alt text-base-content/70">{{ form.theme.help_text }}</span>
+              </label>
+            {% endif %}
+        </div>
+
+        <div class="divider"></div>
 
         {# リンク情報セクション #}
         <h2 class="text-xl font-semibold mb-3">リンク情報</h2>

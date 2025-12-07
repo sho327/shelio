@@ -22,7 +22,8 @@
              href="{% url 'dashboard:dashboard' %}"
              class="flex items-center gap-2"
              :class="{
-                 'active': activePath === 'dashboard', 
+                 'bg-primary/10 text-primary font-bold focus:bg-primary/10 active:bg-primary/10 hover:bg-primary/20': activePath === 'dashboard',
+                 'text-base-content hover:bg-base-200': activePath !== 'dashboard',
                  'justify-center p-0': !sidebarOpen, 
                  'py-3 px-4': sidebarOpen 
              }"
@@ -44,7 +45,8 @@
           <a x-tooltip="新規投稿"
              class="flex items-center gap-2"
              :class="{
-                 'active': activePath === 'post', 
+                 'bg-primary/10 text-primary font-bold focus:bg-primary/10 active:bg-primary/10 hover:bg-primary/20': activePath === 'post', 
+                 'text-base-content hover:bg-base-200': activePath !== 'post',
                  'justify-center p-0': !sidebarOpen, 
                  'py-3 px-4': sidebarOpen 
              }"
@@ -66,7 +68,8 @@
           <a x-tooltip="自分の作品"
              class="flex items-center gap-2"
              :class="{
-                 'active': activePath === 'my_projects', 
+                 'bg-primary/10 text-primary font-bold focus:bg-primary/10 active:bg-primary/10 hover:bg-primary/20': activePath === 'my_projects', 
+                 'text-base-content hover:bg-base-200': activePath !== 'my_projects',
                  'justify-center p-0': !sidebarOpen, 
                  'py-3 px-4': sidebarOpen 
              }"
@@ -96,7 +99,8 @@
              href="{% url 'account:profile_edit' %}"
              class="flex items-center gap-2"
              :class="{
-                 'active': activePath === 'settings', 
+                 'bg-primary/10 text-primary font-bold focus:bg-primary/10 active:bg-primary/10 hover:bg-primary/20': activePath === 'settings', 
+                 'text-base-content hover:bg-base-200': activePath !== 'settings',
                  'justify-center p-0': !sidebarOpen, 
                  'py-3 px-4': sidebarOpen 
              }"

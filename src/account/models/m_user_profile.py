@@ -31,6 +31,14 @@ class M_UserProfile(BaseModel):
         null=True,
         blank=True,
     )
+    theme = models.CharField(
+        db_column="theme",
+        verbose_name="テーマ",
+        db_comment="UIテーマ",
+        max_length=32,
+        default="light",
+        blank=True,
+    )
     icon = models.ImageField(
         db_column="icon",
         verbose_name="ユーザーアイコン",

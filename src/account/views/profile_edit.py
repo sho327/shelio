@@ -36,6 +36,7 @@ class ProfileEditView(LoginRequiredMixin, FormView):
             try:
                 profile = user.user_profile
                 initial["display_name"] = profile.display_name
+                initial["theme"] = profile.theme
                 initial["bio"] = profile.bio
                 initial["career_history"] = profile.career_history
                 initial["location"] = profile.location
@@ -56,8 +57,25 @@ class ProfileEditView(LoginRequiredMixin, FormView):
     # フォームのインスタンス化をオーバーライド (userインスタンスを渡すため)
     def get_form(self, form_class=None):
         form_class = form_class or self.get_form_class()
-        # フォームに user インスタンスを渡す
-        return form_class(user=self.request.user, **self.get_form_kwargs())
+        
+        # テーマの選択肢を定義 (base.htmlと同期が必要)
+        theme_choices = [
+            ('light', 'Light'), ('dark', 'Dark'), ('cupcake', 'Cupcake'), 
+            ('bumblebee', 'Bumblebee'), ('emerald', 'Emerald'), ('corporate', 'Corporate'),
+            ('synthwave', 'Synthwave'), ('retro', 'Retro'), ('cyberpunk', 'Cyberpunk'),
+            ('valentine', 'Valentine'), ('halloween', 'Halloween'), ('garden', 'Garden'),
+            ('forest', 'Forest'), ('aqua', 'Aqua'), ('lofi', 'Lofi'),
+            ('pastel', 'Pastel'), ('fantasy', 'Fantasy'), ('wireframe', 'Wireframe'),
+            ('black', 'Black'), ('luxury', 'Luxury'), ('dracula', 'Dracula'),
+            ('cmyk', 'Cmyk'), ('autumn', 'Autumn'), ('business', 'Business'),
+            ('acid', 'Acid'), ('lemonade', 'Lemonade'), ('night', 'Night'),
+            ('coffee', 'Coffee'), ('winter', 'Winter'), ('dim', 'Dim'),
+            ('nord', 'Nord'), ('sunset', 'Sunset')
+        ]
+        
+        form = form_class(user=self.request.user, **self.get_form_kwargs())
+        form.fields['theme'].choices = theme_choices
+        return form
 
     def form_valid(self, form):
         data = form.cleaned_data
@@ -83,6 +101,7 @@ class ProfileEditView(LoginRequiredMixin, FormView):
                 is_notify_follow=data.get("is_notify_follow"),
                 icon_file=icon_file,
                 icon_clear=data.get("icon_clear", False),
+                theme=data.get("theme"),
             )
 
             messages.success(self.request, "プロフィールを更新しました！")

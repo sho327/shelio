@@ -30,6 +30,14 @@ class ProfileEditForm(forms.Form):
         help_text="既存のアイコンを削除します。",
     )
 
+    theme = forms.ChoiceField(
+        label="テーマ",
+        required=False,
+        help_text="UIのテーマを選択してください。",
+        # 選択肢はView側で設定するか定義する
+        choices=[], 
+    )
+
     # 詳細情報
     bio = forms.CharField(
         label="自己紹介文",

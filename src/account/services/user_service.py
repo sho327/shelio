@@ -150,6 +150,7 @@ class UserService:
         is_notify_follow: Optional[bool] = None,
         icon_file: Optional[UploadedFile] = None,
         icon_clear: bool = False,
+        theme: Optional[str] = None,
     ) -> User:
         """
         ユーザープロフィールを更新する。
@@ -192,6 +193,8 @@ class UserService:
                 update_data["is_notify_comment"] = is_notify_comment
             if is_notify_follow is not None:
                 update_data["is_notify_follow"] = is_notify_follow
+            if theme is not None:
+                update_data["theme"] = theme
 
             # アイコンが設定された場合、または削除フラグがある場合
             if icon_value is not None:

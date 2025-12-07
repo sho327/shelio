@@ -1,7 +1,7 @@
 {% load static %}
 {% comment %} Djangoは{% %}{{}}しか使用されない/alpineは{}だけを使用するため競合しない {% endcomment %}
 <!DOCTYPE html>
-<html lang="ja" x-data="appData()" x-bind:data-theme="activeTheme">
+<html lang="ja" data-theme="{{ user.user_profile.theme|default:'light' }}" x-data="appData()" x-bind:data-theme="activeTheme">
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -12,6 +12,7 @@
   <script src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js" defer></script>
   
   <style>
+    [x-cloak] { display: none !important; }
     /* ツールチップ風 - サイドバー専用に調整 */
     [x-tooltip] { position: relative; cursor: pointer; }
     [x-tooltip]:hover::after {
@@ -48,8 +49,8 @@ function appData() {
   return {
     sidebarOpen: true,
     drawerOpen: false,
-    activeTheme: 'business',
-    // activeTheme: 'light',
+    // activeTheme: 'business',
+    activeTheme: "{{ user.user_profile.theme|default:'light' }}",
     availableThemes: ['light', 'dark', 'cupcake', 'bumblebee', 'emerald', 'corporate', 'synthwave', 'retro', 'cyberpunk', 'valentine', 'halloween', 'garden', 'forest', 'aqua', 'lofi', 'pastel', 'fantasy', 'wireframe', 'black', 'luxury', 'dracula', 'cmyk', 'autumn', 'business', 'acid', 'lemonade', 'night', 'coffee', 'winter', 'dim', 'nord', 'sunset'],
     
     // 現在のページに基づいてアクティブなパスを設定
