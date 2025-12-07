@@ -14,29 +14,7 @@
   <style>
     [x-cloak] { display: none !important; }
     /* ツールチップ風 - サイドバー専用に調整 */
-    [x-tooltip] { position: relative; cursor: pointer; }
-    [x-tooltip]:hover::after {
-      content: attr(x-tooltip);
-      position: absolute;
-      left: 50%;
-      top: 0;
-      transform: translate(-50%, -100%); 
-      margin-top: -8px; 
-      background: #333; 
-      color: white; 
-      padding: 4px 8px; 
-      font-size: 0.8rem;
-      border-radius: 6px; 
-      white-space: nowrap;
-      z-index: 9999; 
-    }
-    .menu a[x-tooltip]:hover::after {
-      left: 100%;
-      top: 50%;
-      transform: translate(0, -50%);
-      margin-top: 0;
-      margin-left: 10px; /* アイコンから少し離す */
-    }
+
   </style>
 
   {% block extra_head %}{% endblock %}
@@ -78,7 +56,18 @@ function appData() {
     {% if messages %}
       <div class="toast toast-top toast-end z-50">
         {% for message in messages %}
-          <div role="alert" class="alert {% if message.tags == 'error' %}!bg-rose-400 !text-white !border-rose-400{% elif message.tags == 'success' %}!bg-emerald-400 !text-white !border-emerald-400{% else %}alert-info{% endif %} shadow-lg flex flex-row items-center gap-3 min-w-[300px]">
+          <div x-data="{ show: true }" 
+               x-show="show" 
+               x-init="setTimeout(() => show = false, 3000)" 
+               x-transition:enter="transition ease-out duration-300"
+               x-transition:enter-start="opacity-0 translate-x-10"
+               x-transition:enter-end="opacity-100 translate-x-0"
+               x-transition:leave="transition ease-in duration-300"
+               x-transition:leave-start="opacity-100 translate-x-0"
+               x-transition:leave-end="opacity-0 translate-x-10"
+               role="alert" 
+               class="alert p-2.5 rounded-lg {% if message.tags == 'error' %}alert-error text-white{% elif message.tags == 'success' %}alert-success text-white{% else %}alert-info text-white{% endif %} shadow-lg flex flex-row items-center gap-3 min-w-[300px]">
+            
             {# Icons #}
             {% if message.tags == 'success' %}
               <svg xmlns="http://www.w3.org/2000/svg" class="stroke-current shrink-0 h-6 w-6" fill="none" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>
@@ -88,7 +77,12 @@ function appData() {
               <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" class="stroke-current shrink-0 w-6 h-6"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
             {% endif %}
             
-            <span class="font-medium">{{ message }}</span>
+            <span class="font-medium flex-1">{{ message }}</span>
+
+            {# Close Button #}
+            <button @click="show = false" class="btn btn-sm btn-circle btn-ghost text-white">
+              <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" /></svg>
+            </button>
           </div>
         {% endfor %}
       </div>
