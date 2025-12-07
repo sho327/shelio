@@ -29,6 +29,8 @@ from django.urls import path
 
 from dashboard.views.dashboard import DashboardView
 
+app_name = "dashboard"
+
 urlpatterns = [
     # ログイン画面を表示し、POSTで送信されたログイン情報を処理する
     path("", DashboardView.as_view(), name="dashboard"),

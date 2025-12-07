@@ -14,7 +14,7 @@ from core.utils.log_helpers import log_output_by_msg_id
 class InitialSetupView(LoginRequiredMixin, FormView):
     template_name = "account/initial_setup.html"
     form_class = InitialSetupForm
-    success_url = reverse_lazy("dashboard")
+    success_url = reverse_lazy("dashboard:dashboard")
     user_service = UserService()
 
     # 1. アクセス制御 (変更なし)
