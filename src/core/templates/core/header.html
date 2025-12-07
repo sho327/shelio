@@ -15,7 +15,7 @@
 	</div>
 	
 	<div class="flex-1">
-	  <a class="font-bold text-xl normal-case">{{ SITE_NAME }} | ダッシュボード</a>
+	  <a href="{% url 'dashboard:dashboard' %}" class="font-bold text-xl normal-case">{{ SITE_NAME }} | ダッシュボード</a>
 	</div>
   
 	<div class="flex-none gap-2">
@@ -28,7 +28,7 @@
 		  <span class="hidden md:inline">Shogo Kato</span>
 		</button>
 		<ul x-show="open" @click.outside="open=false" class="absolute top-10 right-0 mt-1 dropdown-content menu p-2 shadow bg-base-100 rounded-box w-52 z-50">
-		  <li><a>プロフィール</a></li>
+		  <li><a href="{% url 'account:profile' %}">プロフィール</a></li>
 		  <li><a>設定</a></li>
 		  
 		  <li class="divider"></li>

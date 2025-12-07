@@ -127,3 +127,90 @@ class UserService:
                     "user_id": str(user.pk) if user else "unknown",
                 },
             )
+
+    # ------------------------------------------------------------------
+    # プロフィール更新処理
+    # ------------------------------------------------------------------
+    @transaction.atomic
+    def update_profile(
+        self,
+        user: User,
+        display_name: Optional[str] = None,
+        bio: Optional[str] = None,
+        career_history: Optional[str] = None,
+        location: Optional[str] = None,
+        skill_tags_raw: Optional[str] = None,
+        github_link: Optional[str] = None,
+        x_link: Optional[str] = None,
+        portfolio_blog_link: Optional[str] = None,
+        is_public: Optional[bool] = None,
+        is_email_notify_enabled: Optional[bool] = None,
+        is_notify_like: Optional[bool] = None,
+        is_notify_comment: Optional[bool] = None,
+        is_notify_follow: Optional[bool] = None,
+        icon_file: Optional[UploadedFile] = None,
+    ) -> User:
+        """
+        ユーザープロフィールを更新する。
+        """
+        try:
+            # 1. UserProfileの存在チェックと取得
+            profile = self.profile_repo.get_alive_one_or_none(m_user=user.pk)
+            if not profile:
+                # ユーザーに関連付けられたプロフィールがない場合、作成
+                profile = self.profile_repo.create(m_user=user)
+
+            # 2. アイコンファイルの処理: DBに格納すべき値を取得
+            icon_value = self._handle_icon_upload(user, icon_file)
+
+            # 3. UserProfileの更新データ辞書を作成（Noneでない値のみ更新）
+            update_data = {}
+            if display_name is not None:
+                update_data["display_name"] = display_name
+            if bio is not None:
+                update_data["bio"] = bio
+            if career_history is not None:
+                update_data["career_history"] = career_history
+            if location is not None:
+                update_data["location"] = location
+            if skill_tags_raw is not None:
+                update_data["skill_tags_raw"] = skill_tags_raw
+            if github_link is not None:
+                update_data["github_link"] = github_link
+            if x_link is not None:
+                update_data["x_link"] = x_link
+            if portfolio_blog_link is not None:
+                update_data["portfolio_blog_link"] = portfolio_blog_link
+            if is_public is not None:
+                update_data["is_public"] = is_public
+            if is_email_notify_enabled is not None:
+                update_data["is_email_notify_enabled"] = is_email_notify_enabled
+            if is_notify_like is not None:
+                update_data["is_notify_like"] = is_notify_like
+            if is_notify_comment is not None:
+                update_data["is_notify_comment"] = is_notify_comment
+            if is_notify_follow is not None:
+                update_data["is_notify_follow"] = is_notify_follow
+
+            # アイコンが設定された場合のみ追加
+            if icon_value is not None:
+                update_data["icon"] = icon_value
+
+            # 4. UserProfileの更新実行
+            if update_data:
+                self.profile_repo.update(profile, **update_data)
+
+            return user
+
+        except ExternalServiceError:
+            raise
+        except Exception as e:
+            # サービス層ではログ出力せず、例外を投げるだけ（ビュー層でログ出力）
+            raise IntegrityError(
+                message="プロフィールの更新中に予期せぬエラーが発生しました。",
+                details={
+                    "internal_message": str(e),
+                    "error_type": type(e).__name__,
+                    "user_id": str(user.pk) if user else "unknown",
+                },
+            )

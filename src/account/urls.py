@@ -7,6 +7,8 @@ from account.views.logout import LogoutView
 from account.views.password_reset_confirm import PasswordResetConfirmView
 from account.views.password_reset_pending import PasswordResetPendingView
 from account.views.password_reset_request import PasswordResetRequestView
+from account.views.profile import ProfileView
+from account.views.profile_edit import ProfileEditView
 from account.views.register import RegisterView
 from account.views.register_pending import RegisterPendingView
 
@@ -44,4 +46,6 @@ urlpatterns = [
         InitialSetupView.as_view(),
         name="initial_setup",
     ),
+    path("profile/", ProfileView.as_view(), name="profile"),
+    path("profile/edit/", ProfileEditView.as_view(), name="profile_edit"),
 ]

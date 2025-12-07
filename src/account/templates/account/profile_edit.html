@@ -1,0 +1,406 @@
+{% extends "core/base.html" %}
+{% load static %}
+
+{% block title %}プロフィール編集 - {{ SITE_NAME }}{% endblock %}
+
+{% block content %}
+
+<div class="container mx-auto max-w-4xl">
+  <div class="mb-6">
+    <h1 class="text-3xl font-bold">プロフィール編集</h1>
+    <a href="{% url 'account:profile' %}" class="link link-primary mt-2 inline-block">← プロフィールに戻る</a>
+  </div>
+
+  <div class="card bg-base-100 shadow-xl">
+    <div class="card-body">
+      {# Django標準のフォーム送信を利用 #}
+      <form method="post" action="" enctype="multipart/form-data">
+        {% csrf_token %}
+        
+        {# フォームの全体エラー表示 #}
+        {% if form.non_field_errors %}
+          <div role="alert" class="alert alert-error mb-4">
+            <svg xmlns="http://www.w3.org/2000/svg" class="stroke-current shrink-0 h-6 w-6" fill="none" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 14l2-2m0 0l2-2m-2 2l-2-2m2 2l2 2m7-2a9 9 0 11-18 0 9 9 0 0118 0z" />
+            </svg>
+            <div>
+              {% for error in form.non_field_errors %}
+                <span class="font-medium block">{{ error }}</span>
+              {% endfor %}
+            </div>
+          </div>
+        {% endif %}
+
+        {# 基本情報セクション #}
+        <h2 class="text-xl font-bold mb-4">基本情報</h2>
+        
+        {# 表示名 #}
+        {% with field=form.display_name %}
+          <div class="form-control mb-4">
+            <label class="label">
+              <span class="label-text font-bold">{{ field.label }} <span class="text-error">*</span></span>
+            </label>
+            <input type="text" 
+                 name="{{ field.name }}"
+                 id="{{ field.id_for_label }}"
+                 placeholder="例: Kenji_Dev" 
+                 class="input input-bordered w-full {% if field.errors %}input-error{% endif %}" 
+                 required
+                 value="{{ field.value|default_if_none:'' }}"/>
+            
+            {% if field.help_text %}
+              <label class="label">
+                <span class="label-text-alt text-base-content/70">{{ field.help_text }}</span>
+              </label>
+            {% endif %}
+            
+            {% if field.errors %}
+              <label class="label pt-0">
+                <span class="label-text-alt text-error">
+                  {% for error in field.errors %}{{ error }}{% endfor %}
+                </span>
+              </label>
+            {% endif %}
+          </div>
+        {% endwith %}
+
+        {# アイコン #}
+        {% with field=form.icon %}
+          <div class="form-control mb-4">
+            <label class="label">
+              <span class="label-text font-bold">{{ field.label }}</span>
+            </label>
+            <input type="file" 
+                 name="{{ field.name }}"
+                 id="{{ field.id_for_label }}"
+                 accept="image/*"
+                 class="file-input file-input-bordered w-full {% if field.errors %}input-error{% endif %}"/>
+                 
+            {% if field.help_text %}
+              <label class="label">
+                <span class="label-text-alt text-base-content/70">{{ field.help_text }}</span>
+              </label>
+            {% endif %}
+
+            {% if field.errors %}
+              <label class="label pt-0">
+                <span class="label-text-alt text-error">
+                  {% for error in field.errors %}{{ error }}{% endfor %}
+                </span>
+              </label>
+            {% endif %}
+          </div>
+        {% endwith %}
+
+        <div class="divider"></div>
+
+        {# 詳細情報セクション #}
+        <h2 class="text-xl font-bold mb-4">詳細情報</h2>
+
+        {# 自己紹介 #}
+        {% with field=form.bio %}
+          <div class="form-control mb-4">
+            <label class="label">
+              <span class="label-text font-bold">{{ field.label }}</span>
+            </label>
+            <textarea name="{{ field.name }}"
+                    id="{{ field.id_for_label }}"
+                    class="textarea textarea-bordered w-full {% if field.errors %}textarea-error{% endif %}"
+                    rows="4"
+                    placeholder="自己紹介文を入力してください（最大500文字）">{{ field.value|default_if_none:'' }}</textarea>
+            
+            {% if field.help_text %}
+              <label class="label">
+                <span class="label-text-alt text-base-content/70">{{ field.help_text }}</span>
+              </label>
+            {% endif %}
+            
+            {% if field.errors %}
+              <label class="label pt-0">
+                <span class="label-text-alt text-error">
+                  {% for error in field.errors %}{{ error }}{% endfor %}
+                </span>
+              </label>
+            {% endif %}
+          </div>
+        {% endwith %}
+
+        {# 経歴 #}
+        {% with field=form.career_history %}
+          <div class="form-control mb-4">
+            <label class="label">
+              <span class="label-text font-bold">{{ field.label }}</span>
+            </label>
+            <textarea name="{{ field.name }}"
+                    id="{{ field.id_for_label }}"
+                    class="textarea textarea-bordered w-full {% if field.errors %}textarea-error{% endif %}"
+                    rows="6"
+                    placeholder="職務経歴や学歴などを入力してください">{{ field.value|default_if_none:'' }}</textarea>
+            
+            {% if field.help_text %}
+              <label class="label">
+                <span class="label-text-alt text-base-content/70">{{ field.help_text }}</span>
+              </label>
+            {% endif %}
+            
+            {% if field.errors %}
+              <label class="label pt-0">
+                <span class="label-text-alt text-error">
+                  {% for error in field.errors %}{{ error }}{% endfor %}
+                </span>
+              </label>
+            {% endif %}
+          </div>
+        {% endwith %}
+
+        {# 所在地 #}
+        {% with field=form.location %}
+          <div class="form-control mb-4">
+            <label class="label">
+              <span class="label-text font-bold">{{ field.label }}</span>
+            </label>
+            <input type="text" 
+                 name="{{ field.name }}"
+                 id="{{ field.id_for_label }}"
+                 placeholder="例：東京都、日本" 
+                 class="input input-bordered w-full {% if field.errors %}input-error{% endif %}" 
+                 value="{{ field.value|default_if_none:'' }}"/>
+            
+            {% if field.help_text %}
+              <label class="label">
+                <span class="label-text-alt text-base-content/70">{{ field.help_text }}</span>
+              </label>
+            {% endif %}
+            
+            {% if field.errors %}
+              <label class="label pt-0">
+                <span class="label-text-alt text-error">
+                  {% for error in field.errors %}{{ error }}{% endfor %}
+                </span>
+              </label>
+            {% endif %}
+          </div>
+        {% endwith %}
+
+        {# 技術タグ #}
+        {% with field=form.skill_tags_raw %}
+          <div class="form-control mb-4">
+            <label class="label">
+              <span class="label-text font-bold">{{ field.label }}</span>
+            </label>
+            <input type="text" 
+                 name="{{ field.name }}"
+                 id="{{ field.id_for_label }}"
+                 placeholder="例：Python, Django, React" 
+                 class="input input-bordered w-full {% if field.errors %}input-error{% endif %}" 
+                 value="{{ field.value|default_if_none:'' }}"/>
+            
+            {% if field.help_text %}
+              <label class="label">
+                <span class="label-text-alt text-base-content/70">{{ field.help_text }}</span>
+              </label>
+            {% endif %}
+            
+            {% if field.errors %}
+              <label class="label pt-0">
+                <span class="label-text-alt text-error">
+                  {% for error in field.errors %}{{ error }}{% endfor %}
+                </span>
+              </label>
+            {% endif %}
+          </div>
+        {% endwith %}
+
+        <div class="divider"></div>
+
+        {# リンク情報セクション #}
+        <h2 class="text-xl font-bold mb-4">リンク情報</h2>
+
+        {# GitHubリンク #}
+        {% with field=form.github_link %}
+          <div class="form-control mb-4">
+            <label class="label">
+              <span class="label-text font-bold">{{ field.label }}</span>
+            </label>
+            <input type="url" 
+                 name="{{ field.name }}"
+                 id="{{ field.id_for_label }}"
+                 placeholder="https://github.com/username" 
+                 class="input input-bordered w-full {% if field.errors %}input-error{% endif %}" 
+                 value="{{ field.value|default_if_none:'' }}"/>
+            
+            {% if field.help_text %}
+              <label class="label">
+                <span class="label-text-alt text-base-content/70">{{ field.help_text }}</span>
+              </label>
+            {% endif %}
+            
+            {% if field.errors %}
+              <label class="label pt-0">
+                <span class="label-text-alt text-error">
+                  {% for error in field.errors %}{{ error }}{% endfor %}
+                </span>
+              </label>
+            {% endif %}
+          </div>
+        {% endwith %}
+
+        {# X (Twitter)リンク #}
+        {% with field=form.x_link %}
+          <div class="form-control mb-4">
+            <label class="label">
+              <span class="label-text font-bold">{{ field.label }}</span>
+            </label>
+            <input type="url" 
+                 name="{{ field.name }}"
+                 id="{{ field.id_for_label }}"
+                 placeholder="https://x.com/username" 
+                 class="input input-bordered w-full {% if field.errors %}input-error{% endif %}" 
+                 value="{{ field.value|default_if_none:'' }}"/>
+            
+            {% if field.help_text %}
+              <label class="label">
+                <span class="label-text-alt text-base-content/70">{{ field.help_text }}</span>
+              </label>
+            {% endif %}
+            
+            {% if field.errors %}
+              <label class="label pt-0">
+                <span class="label-text-alt text-error">
+                  {% for error in field.errors %}{{ error }}{% endfor %}
+                </span>
+              </label>
+            {% endif %}
+          </div>
+        {% endwith %}
+
+        {# ポートフォリオ/ブログリンク #}
+        {% with field=form.portfolio_blog_link %}
+          <div class="form-control mb-4">
+            <label class="label">
+              <span class="label-text font-bold">{{ field.label }}</span>
+            </label>
+            <input type="url" 
+                 name="{{ field.name }}"
+                 id="{{ field.id_for_label }}"
+                 placeholder="https://example.com" 
+                 class="input input-bordered w-full {% if field.errors %}input-error{% endif %}" 
+                 value="{{ field.value|default_if_none:'' }}"/>
+            
+            {% if field.help_text %}
+              <label class="label">
+                <span class="label-text-alt text-base-content/70">{{ field.help_text }}</span>
+              </label>
+            {% endif %}
+            
+            {% if field.errors %}
+              <label class="label pt-0">
+                <span class="label-text-alt text-error">
+                  {% for error in field.errors %}{{ error }}{% endfor %}
+                </span>
+              </label>
+            {% endif %}
+          </div>
+        {% endwith %}
+
+        <div class="divider"></div>
+
+        {# 設定セクション #}
+        <h2 class="text-xl font-bold mb-4">設定</h2>
+
+        {# プロフィール公開 #}
+        {% with field=form.is_public %}
+          <div class="form-control mb-4">
+            <label class="label cursor-pointer p-0">
+              <span class="label-text">{{ field.label }}</span>
+              <input type="checkbox" 
+                  name="{{ field.name }}"
+                  id="{{ field.id_for_label }}"
+                  class="checkbox checkbox-primary" 
+                  {% if field.value %}checked{% endif %} />
+            </label>
+            {% if field.help_text %}
+              <label class="label pt-0">
+                <span class="label-text-alt text-base-content/70">{{ field.help_text }}</span>
+              </label>
+            {% endif %}
+          </div>
+        {% endwith %}
+
+        {# メール通知一括設定 #}
+        {% with field=form.is_email_notify_enabled %}
+          <div class="form-control mb-4">
+            <label class="label cursor-pointer p-0">
+              <span class="label-text">{{ field.label }}</span>
+              <input type="checkbox" 
+                  name="{{ field.name }}"
+                  id="{{ field.id_for_label }}"
+                  class="checkbox checkbox-primary" 
+                  {% if field.value %}checked{% endif %} />
+            </label>
+            {% if field.help_text %}
+              <label class="label pt-0">
+                <span class="label-text-alt text-base-content/70">{{ field.help_text }}</span>
+              </label>
+            {% endif %}
+          </div>
+        {% endwith %}
+
+        {# 個別通知設定 #}
+        <div class="ml-4 mb-4">
+          <p class="text-sm font-semibold mb-2">個別通知設定</p>
+          
+          {% with field=form.is_notify_like %}
+            <div class="form-control mb-2">
+              <label class="label cursor-pointer p-0">
+                <span class="label-text text-sm">{{ field.label }}</span>
+                <input type="checkbox" 
+                    name="{{ field.name }}"
+                    id="{{ field.id_for_label }}"
+                    class="checkbox checkbox-sm checkbox-primary" 
+                    {% if field.value %}checked{% endif %} />
+              </label>
+            </div>
+          {% endwith %}
+
+          {% with field=form.is_notify_comment %}
+            <div class="form-control mb-2">
+              <label class="label cursor-pointer p-0">
+                <span class="label-text text-sm">{{ field.label }}</span>
+                <input type="checkbox" 
+                    name="{{ field.name }}"
+                    id="{{ field.id_for_label }}"
+                    class="checkbox checkbox-sm checkbox-primary" 
+                    {% if field.value %}checked{% endif %} />
+              </label>
+            </div>
+          {% endwith %}
+
+          {% with field=form.is_notify_follow %}
+            <div class="form-control mb-2">
+              <label class="label cursor-pointer p-0">
+                <span class="label-text text-sm">{{ field.label }}</span>
+                <input type="checkbox" 
+                    name="{{ field.name }}"
+                    id="{{ field.id_for_label }}"
+                    class="checkbox checkbox-sm checkbox-primary" 
+                    {% if field.value %}checked{% endif %} />
+              </label>
+            </div>
+          {% endwith %}
+        </div>
+
+        {# 送信ボタン #}
+        <div class="form-control mt-6">
+          <div class="flex gap-4">
+            <button type="submit" class="btn btn-primary flex-1">更新する</button>
+            <a href="{% url 'account:profile' %}" class="btn btn-outline">キャンセル</a>
+          </div>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>
+
+{% endblock %}
+

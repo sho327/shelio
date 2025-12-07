@@ -23,7 +23,7 @@ process_name = "LoginView"
 class LoginView(FormView):
     form_class = AuthenticationForm
     template_name = "account/login.html"
-    success_url = reverse_lazy("dashboard")
+    success_url = reverse_lazy("dashboard:dashboard")
     INITIAL_SETUP_URL = reverse_lazy("account:initial_setup")
 
     # FormViewが持つ成功時のURL取得メソッドを利用
