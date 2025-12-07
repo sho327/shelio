@@ -35,7 +35,7 @@ env.read_env(os.path.join(BASE_DIR, ".env"))
 # 基本的なコア設定
 SECRET_KEY: str = env("SECRET_KEY")
 DEBUG: bool = env.bool("DEBUG", default=False)
-APP_NAME = "shelio"
+APP_NAME = "Loclil"
 DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
 
 # ==============================================================================

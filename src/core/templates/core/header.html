@@ -15,12 +15,33 @@
 	</div>
 	
 	<div class="flex-1">
-	  <a href="{% url 'dashboard:dashboard' %}" class="font-bold text-xl normal-case">{{ SITE_NAME }} | ダッシュボード</a>
+	  <a href="{% url 'dashboard:dashboard' %}" class="font-bold text-2xl normal-case">{{ SITE_NAME }}</a>
 	</div>
   
 	<div class="flex-none gap-2">
+		<a href="/liked" class="btn btn-ghost btn-circle btn-sm" title="いいねした作品">
+			<svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 text-error" fill="currentColor" viewBox="0 0 24 24">
+				<path d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z"></path>
+			</svg>
+		</a>
+		<div class="dropdown dropdown-end">
+			<div tabindex="0" role="button" class="btn btn-ghost btn-circle btn-sm">
+				<div class="indicator" title="お知らせ">
+					<svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+						<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9" />
+					</svg>
+					<span class="badge badge-xs badge-error indicator-item rounded-full text-white px-1 py-1.5">3</span>
+				</div>
+			</div>
+			<ul tabindex="0" class="dropdown-content menu p-2 shadow bg-base-100 rounded-box w-64 z-[1]">
+				<li class="menu-title">お知らせ (3)</li>
+				<li><a href="/notifications/comment/1">コメントへの返信が来ました</a></li>
+				<li><a href="/notifications/like/2">あなたの作品が100いいねを達成</a></li>
+				<li><a href="/notifications/new/3">新規プロジェクトが公開されました</a></li>
+			</ul>
+		</div>
   
-	  <div class="px-4 relative" x-data="{ open: false }">
+	  <div class="relative" x-data="{ open: false }">
 		<button @click="open = !open" class="btn btn-ghost rounded-lg flex items-center gap-2">
 		  <div class="w-8 h-8 rounded-full overflow-hidden">
 			{% if user.is_authenticated and USER_PROFILE %}
@@ -48,24 +69,43 @@
 		  </span>
 		</button>
 		<ul x-cloak x-show="open" @click.outside="open=false" class="absolute top-10 right-0 mt-1 dropdown-content menu p-2 shadow bg-base-100 rounded-box w-52 z-50">
-		  <li><a href="{% url 'account:profile' %}">プロフィール</a></li>
-		  <li><a>設定</a></li>
+		  <li>
+			<a href="{% url 'account:profile' %}"
+			   :class="{
+				   'focus:bg-neutral focus:text-neutral-content': activeTheme === 'business',
+				   'text-base-content hover:bg-primary/10 focus:!bg-primary/10 active:!bg-primary/10 focus-visible:!bg-primary/10 focus:!text-primary active:!text-primary': activeTheme !== 'business'
+			   }">
+			   プロフィール
+			</a>
+		  </li>
+		  <!-- <li>
+			<a :class="{
+				   'focus:bg-neutral focus:text-neutral-content': activeTheme === 'business',
+				   'text-base-content hover:bg-primary/10 focus:!bg-primary/10 active:!bg-primary/10 focus-visible:!bg-primary/10 focus:!text-primary active:!text-primary': activeTheme !== 'business'
+			   }">
+			   設定
+			</a>
+		  </li> -->
+		  <li>
+			<a :class="{
+				   'focus:bg-neutral focus:text-neutral-content': activeTheme === 'business',
+				   'text-base-content hover:bg-primary/10 focus:!bg-primary/10 active:!bg-primary/10 focus-visible:!bg-primary/10 focus:!text-primary active:!text-primary': activeTheme !== 'business'
+			   }">
+			   マイコレクション
+			</a>
+		  </li>
 		  
 		  <li class="divider"></li>
-		  {% comment %} <li tabindex="0">
-			<details>
-			  <summary class="font-semibold">テーマ: <span x-text="activeTheme"></span></summary>
-			  <ul class="p-2 shadow menu dropdown-content z-[1] bg-base-100 rounded-box w-52 max-h-60 overflow-y-auto">
-				<template x-for="t in availableThemes" :key="t">
-				  <li>
-					<a @click="activeTheme = t; open=false" :class="activeTheme === t ? 'active' : ''" x-text="t"></a>
-				  </li>
-				</template>
-			  </ul>
-			</details>
-		  </li> {% endcomment %}
 		  
-		  <li><a href="{% url 'account:logout' %}">ログアウト</a></li>
+		  <li>
+			<a href="{% url 'account:logout' %}"
+			   :class="{
+				   'focus:bg-neutral focus:text-neutral-content': activeTheme === 'business',
+				   'text-base-content hover:bg-error/10 focus:!bg-error/10 active:!bg-error/10 focus-visible:!bg-error/10 focus:!text-error active:!text-error': activeTheme !== 'business'
+			   }">
+			   ログアウト
+			</a>
+		  </li>
 		</ul>
 	  </div>
 	</div>
