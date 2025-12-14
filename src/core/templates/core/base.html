@@ -47,37 +47,31 @@
       DaisyUI light テーマを完全上書き
     ------------------------------------------*/
     [data-theme="light"] {
-      /* Primary #2c598c */
-      /* --p: 0.46 0.09 252; */
+      /* Primary */
       /* oklch(0.45, 0.12, 255) - より力強いネイビーブルー */
       --p: 0.45 0.12 255;
-      /* oklch(0.40, 0.14, 255) - 究極の深みと硬質なネイビー */
-      /* --p: 0.40 0.14 255; */
-      --pc: 1 0 0; /* white */
+      /* white */
+      --pc: 1 0 0;
 
-      /* Secondary #71c7b8 */
-      /* --s: 0.76 0.11 180; */
-      /* oklch(0.58, 0.14, 195) - 深いネイビー・ティール */
-      /* --s: 0.58 0.14 195; */
+      /* Secondary */
       /* oklch(0.50, 0.16, 190) - クールで重厚なダークシアン */
       --s: 0.50 0.16 190;
       --sc: 0.15 0 0;
 
-      /* Accent #d35400 */
-      /* --a: 0.66 0.14 50; */
+      /* Accent */
       /* oklch(0.60, 0.18, 45) - 視認性を高めたカッパー/アンバー */
       --a: 0.60 0.18 45;
       --ac: 1 0 0;
 
-      /* Success #22c55d */
+      /* Success */
       /* --su: 0.46 0.09 252;
       --suc: 1 0 0; */
 
-      /* Info #3b82f6 */
+      /* Info */
       /* --in: 0.46 0.09 252;
       --inc: 1 0 0; */
 
-      /* Warning #f59e0b */
+      /* Warning */
       /* --wa: 0.46 0.09 252;
       --wac: 1 0 0; */
 
@@ -96,13 +90,49 @@
       --su: 0.60 0.15 145;
       --suc: 1 0 0;
 
-      /* Error #ef4444 */
-      /* --er: 0.67 0.18 25; */
       /* Error: oklch(0.65, 0.15, 30) - 落ち着いたレッド */
-      --er: 0.65 0.15 30;
-      --erc: 1 0 0;
+      /* --er: 0.65 0.15 30;
+      --erc: 1 0 0; */
 
+      /*  ----- Unimoaベース ----- */
+      /* Primary: Dark Blue/Gray (#2C3E50) */
+      --p: 0.29 0.05 255;
+      --pc: 100 0 0; 
+      /* Success: Turquoise Green */
+      /* --su: 0.73 0.11 162;
+      --suc: 100 0 0;  */
+      --b2: 0.96 0.00 270; /* Base-200: ECF0F1 */
+
+      /* 新プライマリ: #F4B0AF (OKLCH: 0.7635 0.129 359.1) */
+      --p: 0.7635 0.129 359.1; 
+      --pc: 100 0 0; /* プライマリのテキスト色 (白/黒) */
       
+      /* 成功色: プライマリに合い、コントラストが取れる色を仮設定 (例: 落ち着いた緑) */
+      /* --su: 0.5 0.1 140;
+      --suc: 100 0 0;  */
+      
+      /* ベースカラー3: カード背景色 (既存のまま) */
+      --b3: 0.96 0.00 270; 
+
+      /*  ----- SleepDevベース ----- */
+      --p: 0.78 0.129 359.1; 
+      --pc: 100 0 0; 
+      
+      /* セカンダリはニュートラルな色に戻す */
+      /* --s: 0.6 0.04 260; 
+      --sc: 100 0 0;  */
+
+      /* ⭐ アクセント: シックなブラウン (#8c6868) ⭐ */
+      --a: 0.55 0.046 22.8; 
+      --ac: 100 0 0; /* 文字色を白に */
+      
+      /* 成功/エラーは維持 */
+      /* --su: 0.6 0.1 140; 
+      --suc: 100 0 0;  */
+      /* --er: 0.6 0.1 20; 
+      --erc: 100 0 0;  */
+      
+      --b2: 0.96 0.00 270; 
     }
     /* 3. テーブルのレスポンシブ修正 (スマホでバッジ列とビュー列を狭くする) */
     .table thead tr th:nth-child(3), 
@@ -118,6 +148,37 @@
         white-space: nowrap;
         padding-left: 0.5rem; /* 左側のパディングを少し減らす */
         padding-right: 0.5rem;
+    }
+
+    /* AdminLTE風: カードシャドウ */
+    .lte__card {
+        box-shadow: 0 0 1px rgba(0,0,0,.125), 0 1px 3px rgba(0,0,0,.2);
+    }
+    /* AdminLTE風: カード上部プライマリーボーダー */
+    .lte__card.card-primary-outline-top {
+        border-top: 3px solid #2C3E50; /* Primary color */
+    }
+    /* モダンカードスタイル */
+    .modern-card {
+        box-shadow: 0 1px 3px rgba(0,0,0,.1); /* わずかなシャドウを適用 */
+        border: 1px solid #e5e7eb;
+        transition: all 0.2s;
+    }
+    /* EmptyPageのスタイル調整 */
+    .empty-state {
+        min-height: 500px;
+    }
+    /* ヘッダーの文字色を白系に固定 */
+    /* .navbar strong, .navbar a, .navbar .btn, .navbar .indicator {
+        color: white !important;
+    } */
+    /* ヘッダー内のアイコンも強制的に白に */
+    /* .navbar .btn svg {
+        stroke: currentColor !important;
+        color: currentColor !important;
+    } */
+    .navbar .text-error { /* いいねボタンのみ赤を維持 */
+        color: #ef4444 !important; 
     }
 
   </style>
